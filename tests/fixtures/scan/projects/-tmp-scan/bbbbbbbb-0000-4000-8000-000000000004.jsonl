@@ -1,0 +1,2 @@
+{"type": "user", "sessionId": "bbbbbbbb-0000-4000-8000-000000000004", "cwd": "/tmp/scan", "timestamp": "2026-01-01T09:00:00Z", "message": {"role": "user", "content": "unrelated"}}
+{"type": "assistant", "sessionId": "bbbbbbbb-0000-4000-8000-000000000004", "cwd": "/tmp/scan", "timestamp": "2026-01-01T09:01:00Z", "message": {"id": "l1", "model": "claude-sonnet-5-5", "role": "assistant", "content": [{"type": "text", "text": "hi"}], "usage": {"input_tokens": 10, "output_tokens": 100, "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0}}}

@@ -1,0 +1,14 @@
+{
+  "id": "grand-agent",
+  "role": "claude",
+  "cwd": "/tmp/reg",
+  "session_id": "aaaaaaaa-0000-4000-8000-000000000003",
+  "created_at": 1767261000.0,
+  "depth": 2,
+  "model": "haiku",
+  "effort": "low",
+  "parent_session_id": "aaaaaaaa-0000-4000-8000-000000000002",
+  "agent": null,
+  "delegate": false,
+  "read_only": false
+}

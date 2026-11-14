@@ -1,0 +1,10 @@
+{
+  "name": "agent-cost",
+  "version": "0.1.0",
+  "description": "Cost and time tracking for Claude Code sessions: the whole agent tree (main, built-in and Herdr sub-agents) in the status line, per-session JSON files and an HTML report.",
+  "author": {
+    "name": "dmytromykhailiuk"
+  },
+  "license": "MIT",
+  "keywords": ["cost", "usage", "tokens", "statusline", "report", "skills", "hooks"]
+}

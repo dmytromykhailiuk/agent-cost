@@ -1,0 +1,22 @@
+{
+  "v": 1,
+  "kind": "spawn",
+  "session_id": "aaaaaaaa-0000-4000-8000-000000000002",
+  "name": "child-agent",
+  "cwd": "/tmp/reg",
+  "env": {
+    "HERDR_AGENT_ID": "child-agent",
+    "HERDR_AGENT_DEPTH": "1",
+    "HERDR_PARENT_SESSION_ID": "aaaaaaaa-0000-4000-8000-000000000001",
+    "HERDR_ROOT_SESSION_ID": "aaaaaaaa-0000-4000-8000-000000000001"
+  },
+  "args": [
+    "--name",
+    "child-agent",
+    "--model",
+    "sonnet",
+    "--effort",
+    "medium"
+  ],
+  "created_at": 1767261000.0
+}

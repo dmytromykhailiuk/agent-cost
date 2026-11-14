@@ -1,0 +1,3 @@
+{"type": "agent-name", "agentName": "plan-4f2a1b", "sessionId": "bbbbbbbb-0000-4000-8000-000000000003"}
+{"type": "user", "sessionId": "bbbbbbbb-0000-4000-8000-000000000003", "cwd": "/tmp/scan", "timestamp": "2026-01-01T10:03:10Z", "message": {"role": "user", "content": "plan it"}}
+{"type": "assistant", "sessionId": "bbbbbbbb-0000-4000-8000-000000000003", "cwd": "/tmp/scan", "timestamp": "2026-01-01T10:03:20Z", "message": {"id": "g1", "model": "claude-sonnet-5-5", "role": "assistant", "content": [{"type": "text", "text": "the plan"}], "usage": {"input_tokens": 10, "output_tokens": 100, "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0}}}

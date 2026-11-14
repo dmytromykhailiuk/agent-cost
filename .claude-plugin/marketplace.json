@@ -1,0 +1,19 @@
+{
+  "name": "agent-cost",
+  "owner": {
+    "name": "dmytromykhailiuk"
+  },
+  "metadata": {
+    "description": "Cost and time tracking for Claude Code agent trees."
+  },
+  "plugins": [
+    {
+      "name": "agent-cost",
+      "source": "./",
+      "description": "Cost and time tracking: hooks that record every session and sub-agent, a status-line segment and an HTML report.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "keywords": ["cost", "usage", "tokens", "statusline", "report"]
+    }
+  ]
+}

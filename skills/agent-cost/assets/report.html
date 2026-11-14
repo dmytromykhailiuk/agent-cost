@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%234f7cff'/%3E%3Ctext x='8' y='12' font-size='11' font-family='sans-serif' font-weight='700' text-anchor='middle' fill='white'%3E$%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Cost Report</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --surface-3: #e7eaef;
+  --border: #e1e4ea;
+  --border-strong: #cdd2da;
+  --text: #191d25;
+  --muted: #586070;
+  --faint: #7c8494;
+  --accent: #3a56d4;
+  --accent-soft: #e8ecfc;
+  --sel: #eef1fd;
+  --shadow: 0 1px 2px rgba(20, 24, 33, .05), 0 1px 1px rgba(20, 24, 33, .03);
+  --m-opus: #6a55d8;
+  --m-sonnet: #0d8f80;
+  --m-haiku: #c98208;
+  --m-fable: #c83f73;
+  --m-other: #6b7280;
+  --ok: #17864a;
+  --ok-soft: #e3f4ea;
+  --warn: #a86a00;
+  --warn-soft: #fbf0d9;
+  --off: #5d6573;
+  --off-soft: #eceef2;
+  --grid: rgba(25, 29, 37, .07);
+  --radius: 10px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1015;
+    --surface: #161920;
+    --surface-2: #1c2029;
+    --surface-3: #252a35;
+    --border: #272c37;
+    --border-strong: #353b48;
+    --text: #e5e8ee;
+    --muted: #a2a9b6;
+    --faint: #7f8796;
+    --accent: #8ea2ff;
+    --accent-soft: #232a45;
+    --sel: #1e2436;
+    --shadow: none;
+    --m-opus: #9d8bff;
+    --m-sonnet: #35c3ae;
+    --m-haiku: #eab046;
+    --m-fable: #f06f9f;
+    --m-other: #9aa1ad;
+    --ok: #4cc883;
+    --ok-soft: #173225;
+    --warn: #e8b04a;
+    --warn-soft: #34290f;
+    --off: #a2a9b6;
+    --off-soft: #252a35;
+    --grid: rgba(229, 232, 238, .07);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1015;
+  --surface: #161920;
+  --surface-2: #1c2029;
+  --surface-3: #252a35;
+  --border: #272c37;
+  --border-strong: #353b48;
+  --text: #e5e8ee;
+  --muted: #a2a9b6;
+  --faint: #7f8796;
+  --accent: #8ea2ff;
+  --accent-soft: #232a45;
+  --sel: #1e2436;
+  --shadow: none;
+  --m-opus: #9d8bff;
+  --m-sonnet: #35c3ae;
+  --m-haiku: #eab046;
+  --m-fable: #f06f9f;
+  --m-other: #9aa1ad;
+  --ok: #4cc883;
+  --ok-soft: #173225;
+  --warn: #e8b04a;
+  --warn-soft: #34290f;
+  --off: #a2a9b6;
+  --off-soft: #252a35;
+  --grid: rgba(229, 232, 238, .07);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+.mono { font-family: var(--mono); font-size: .92em; }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.top {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; gap: 12px;
+  height: 52px; padding: 0 16px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 650; letter-spacing: -.01em; }
+.brand-mark {
+  width: 22px; height: 22px; border-radius: 6px;
+  background: linear-gradient(135deg, var(--m-opus), var(--m-sonnet));
+  display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 700;
+}
+.top .gen { margin-left: auto; color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.live-ind { display: inline-flex; align-items: center; gap: 6px; flex: none; color: var(--muted); font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.live-ind[hidden] { display: none; }
+.live-ind.off { color: var(--warn); }
+.live-ind.off .dot { background: var(--warn); animation: none; }
+.hl-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); cursor: pointer; user-select: none; }
+.hl-toggle[hidden] { display: none; }
+.hl-toggle input { margin: 0; accent-color: var(--accent); }
+.icon-btn {
+  display: inline-grid; place-items: center; flex: none;
+  width: 34px; height: 34px; border-radius: 8px;
+  background: transparent; border: 1px solid var(--border); cursor: pointer;
+}
+.icon-btn:hover { background: var(--surface-2); }
+.icon-btn svg { width: 17px; height: 17px; }
+#navToggle { display: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.layout { display: grid; grid-template-columns: 308px minmax(0, 1fr); min-height: calc(100vh - 52px); }
+.sidebar {
+  position: sticky; top: 52px; height: calc(100vh - 52px);
+  display: flex; flex-direction: column;
+  background: var(--surface); border-right: 1px solid var(--border);
+}
+.side-head { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); }
+.search {
+  width: 100%; height: 34px; padding: 0 10px 0 32px;
+  border: 1px solid var(--border-strong); border-radius: 8px;
+  background: var(--surface-2) no-repeat 10px 50% / 14px;
+  color: var(--text); font: inherit;
+}
+.search-wrap { position: relative; }
+.search-wrap svg { position: absolute; left: 10px; top: 10px; width: 14px; height: 14px; color: var(--faint); pointer-events: none; }
+.search::placeholder { color: var(--faint); }
+.side-head { display: flex; flex-direction: column; gap: 8px; flex: none; max-height: 52%; overflow-y: auto; }
+.fl-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); font-weight: 600; margin-bottom: 4px; }
+.seg.full { display: flex; width: 100%; margin-left: 0; }
+.seg.full button { flex: 1; max-width: none; padding: 5px 6px; }
+.seg button .n { margin-left: 4px; font-weight: 450; opacity: .75; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
+  height: 26px; padding: 0 9px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border-strong); background: transparent; color: var(--muted); font-size: 12.5px; white-space: nowrap;
+}
+.chip:hover { background: var(--surface-2); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); font-weight: 600; }
+.chip .n { font-weight: 450; opacity: .75; }
+.select {
+  width: 100%; height: 32px; padding: 0 28px 0 10px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border-strong); color: var(--text); font: inherit; font-size: 13px;
+  background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='m3 4.5 3 3 3-3' fill='none' stroke='%237c8494' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 9px center / 12px;
+  appearance: none; -webkit-appearance: none;
+}
+.select:disabled { opacity: .55; cursor: default; }
+.side-count { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+.side-count .links { margin-left: auto; display: flex; gap: 2px; flex: none; }
+.link-btn { border: 0; background: transparent; padding: 2px 5px; border-radius: 5px; font-size: 12px; color: var(--accent); cursor: pointer; }
+.link-btn:hover { background: var(--surface-2); }
+.slist { overflow-y: auto; padding: 6px 8px 24px; flex: 1; min-height: 0; }
+.ag-head {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  padding: 6px 8px; border: 0; border-radius: 7px; background: transparent; cursor: pointer; text-align: left;
+  font-size: 12px; color: var(--muted);
+}
+.ag-head:hover { background: var(--surface-2); }
+.ag-root { margin-top: 6px; }
+.ag-root > .ag-head { position: sticky; top: -6px; z-index: 2; background: var(--surface); border-radius: 0; padding: 8px 6px; }
+.ag-root > .ag-head:hover { background: var(--surface-2); }
+.ag-proj > .ag-head { padding-left: 14px; }
+.ag-chev { width: 12px; height: 12px; flex: none; color: var(--faint); transition: transform .15s ease; transform: rotate(-90deg); }
+.ag-head[aria-expanded="true"] .ag-chev { transform: none; }
+.ag-head .ico { width: 14px; height: 14px; flex: none; color: var(--faint); display: inline-flex; }
+.ag-head .ico svg { width: 14px; height: 14px; }
+.ag-name { font-weight: 650; color: var(--text); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.ag-root > .ag-head .ag-name { font-size: 13px; }
+.ag-proj > .ag-head .ag-name { font-weight: 600; }
+.ag-name.dim { color: var(--muted); font-style: italic; }
+.ag-n { flex: none; min-width: 18px; height: 17px; padding: 0 5px; border-radius: 9px; background: var(--surface-3); color: var(--muted); font-size: 11px; font-weight: 600; display: inline-grid; place-items: center; }
+.ag-sum { margin-left: auto; white-space: nowrap; color: var(--text); font-weight: 600; font-size: 12.5px; }
+.ag-head .dot { width: 6px; height: 6px; }
+.ag-body { padding-left: 10px; }
+.ag-body[hidden] { display: none; }
+.ag-proj > .ag-body { padding-left: 14px; border-left: 1px solid var(--border); margin-left: 19px; }
+.ag-root > .ag-body { padding-left: 0; }
+.sitem {
+  display: block; padding: 8px 10px; border-radius: 8px; margin: 1px 0;
+  border: 1px solid transparent;
+}
+.sitem:hover { background: var(--surface-2); }
+.sitem.active { background: var(--sel); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.sitem-l1 { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--muted); }
+.sitem-l1 .cost { margin-left: auto; color: var(--text); font-weight: 600; font-size: 13px; }
+.sitem-desc { margin: 2px 0 2px; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sitem-l3 { font-size: 12px; color: var(--muted); }
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex: none; background: var(--off); }
+.dot.live { background: var(--ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); animation: pulse 2s infinite; }
+.dot.idle { background: var(--warn); }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); } 70% { box-shadow: 0 0 0 6px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.empty-list { padding: 24px 12px; color: var(--muted); text-align: center; font-size: 13px; }
+
+.main { padding: 20px 24px 48px; min-width: 0; display: flex; flex-direction: column; gap: 16px; max-width: 1280px; width: 100%; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0; }
+.card-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.card-title { font-size: 13px; font-weight: 650; letter-spacing: .01em; margin: 0; }
+.card-sub { font-size: 12.5px; color: var(--muted); }
+.card-body { padding: 14px 16px; }
+
+.shead { padding: 16px; }
+.shead-top { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+.shead h1 { font-size: 19px; line-height: 1.3; margin: 0; letter-spacing: -.01em; font-weight: 650; flex: 1 1 260px; min-width: 0; overflow-wrap: anywhere; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.meta-row > span { display: inline-flex; align-items: center; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.meta-row svg { width: 13px; height: 13px; flex: none; }
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 22px; padding: 0 8px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
+  background: var(--off-soft); color: var(--off);
+}
+.badge.live { background: var(--ok-soft); color: var(--ok); }
+.badge.idle { background: var(--warn-soft); color: var(--warn); }
+.badge.kind { background: var(--surface-2); color: var(--muted); font-weight: 550; }
+.badge.kind.purpose { color: var(--accent); }
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.tile { border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; background: var(--surface-2); min-width: 0; }
+.tile-k { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+.tile-v { font-size: 22px; font-weight: 650; letter-spacing: -.02em; margin-top: 2px; white-space: nowrap; }
+.tile-s { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile.primary { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-left: auto; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; background: var(--m-other); }
+.sw.hatch { background: repeating-linear-gradient(135deg, var(--faint) 0 2px, transparent 2px 4px); border: 1px solid var(--faint); }
+.f-opus { --c: var(--m-opus); }
+.f-sonnet { --c: var(--m-sonnet); }
+.f-haiku { --c: var(--m-haiku); }
+.f-fable { --c: var(--m-fable); }
+.f-other { --c: var(--m-other); }
+.sw[class*="f-"] { background: var(--c); }
+
+.tl-scroll { overflow-x: auto; overscroll-behavior-x: contain; }
+.tl { --lw: 250px; --cw: 76px; position: relative; min-width: 720px; padding-bottom: 6px; }
+.tl-axis, .tl-row { display: grid; grid-template-columns: var(--lw) minmax(0, 1fr) var(--cw); align-items: center; }
+.tl-axis { height: 30px; border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--muted); }
+.tl-axis .tl-ticks { position: relative; height: 100%; }
+.tick { position: absolute; top: 8px; transform: translateX(-50%); white-space: nowrap; }
+.tick.now { color: var(--ok); font-weight: 650; }
+.tl-axis .sticky-col, .tl-label { position: sticky; left: 0; z-index: 2; background: var(--surface); }
+.tl-axis .sticky-col { height: 100%; display: flex; align-items: center; padding-left: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 11px; }
+.tl-axis .num { padding-right: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; font-size: 11px; }
+.tl-grid { position: absolute; top: 30px; bottom: 0; left: var(--lw); right: var(--cw); pointer-events: none; }
+.tl-grid i { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+.tl-grid i.now { background: none; border-left: 1.5px dashed color-mix(in srgb, var(--ok) 70%, transparent); }
+.tl-row {
+  width: 100%; min-height: 40px; padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.tl-row:hover, .tl-row:hover .tl-label { background: var(--surface-2); }
+.tl-row.sel, .tl-row.sel .tl-label { background: var(--sel); }
+.tl-row.sel .tl-label { box-shadow: inset 3px 0 0 var(--accent); }
+.tl-row:focus-visible { outline-offset: -2px; }
+.tl-label { display: flex; align-items: center; gap: 6px; min-width: 0; height: 100%; padding: 6px 8px 6px calc(16px + var(--d, 0) * 18px); }
+.tl-elbow { width: 10px; height: 14px; flex: none; margin-top: -10px; border-left: 1.5px solid var(--border-strong); border-bottom: 1.5px solid var(--border-strong); border-bottom-left-radius: 4px; }
+.tl-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.tl-role { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.tl-meta { font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pur { font-size: 10.5px; font-weight: 550; color: var(--accent); background: var(--surface-2); border-radius: 4px; padding: 0 5px; line-height: 15px; white-space: nowrap; }
+.side-foot { padding: 7px 14px; border-top: 1px solid var(--border); font-size: 11.5px; }
+.incl { font-size: 10.5px; font-weight: 600; color: var(--muted); border: 1px solid var(--border-strong); border-radius: 4px; padding: 0 4px; line-height: 15px; }
+.tl-track { position: relative; height: 40px; }
+.tl-bar {
+  position: absolute; top: 12px; height: 16px; min-width: 3px; border-radius: 4px;
+  background: var(--c);
+}
+.tl-row.builtin .tl-bar {
+  top: 14px; height: 12px;
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 55%, transparent) 0 3px, color-mix(in srgb, var(--c) 22%, transparent) 3px 6px);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 70%, transparent);
+}
+.tl-bar.live::after {
+  content: ""; position: absolute; right: -1px; top: -3px; bottom: -3px; width: 3px; border-radius: 2px;
+  background: var(--ok); animation: blink 1.6s ease-in-out infinite;
+}
+@keyframes blink { 50% { opacity: .25; } }
+.tl-cost { padding-right: 16px; text-align: right; font-weight: 600; font-size: 13px; white-space: nowrap; }
+.tl-row.builtin .tl-cost { font-weight: 450; color: var(--muted); font-style: italic; }
+.tl-foot { padding: 10px 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+
+.detail-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 14px 16px 0; }
+.detail-head h2 { margin: 0; font-size: 16px; font-weight: 650; }
+.detail-desc { padding: 4px 16px 0; color: var(--muted); font-size: 13.5px; overflow-wrap: anywhere; }
+.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 18px; padding: 14px 16px; }
+.kv div { min-width: 0; }
+.kv dt { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+.kv dd { margin: 2px 0 0; font-size: 13.5px; overflow-wrap: anywhere; }
+.share { display: flex; align-items: center; gap: 8px; }
+.share-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--surface-3); overflow: hidden; min-width: 40px; }
+.share-bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.excerpts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 16px 14px; }
+.excerpt { border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); min-width: 0; }
+.excerpt-k { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; color: var(--muted); padding: 8px 12px 0; }
+.excerpt-v { margin: 0; padding: 6px 12px 10px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; max-height: 220px; overflow-y: auto; }
+.excerpt-v.none { color: var(--faint); font-style: italic; }
+.note { padding: 0 16px 12px; font-size: 12.5px; color: var(--muted); }
+
+.tbl-wrap { overflow-x: auto; }
+table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 560px; }
+.tbl th, .tbl td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.tbl th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; text-align: right; white-space: nowrap; background: var(--surface-2); }
+.tbl th:first-child, .tbl td:first-child { text-align: left; padding-left: 16px; }
+.tbl th:last-child, .tbl td:last-child { padding-right: 16px; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl tfoot td { font-weight: 650; border-top: 1px solid var(--border-strong); }
+.mname { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; font-weight: 550; }
+
+.stack { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--surface-3); gap: 2px; }
+.stack i { display: block; height: 100%; background: var(--c); min-width: 2px; }
+.mlegend { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 16px; margin-top: 12px; }
+.mlegend div { display: flex; align-items: center; gap: 8px; font-size: 13px; min-width: 0; }
+.mlegend b { margin-left: auto; font-weight: 650; }
+.mlegend .pct { color: var(--muted); font-size: 12px; width: 38px; text-align: right; }
+
+.seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 8px; overflow: hidden; margin-left: auto; max-width: 100%; }
+.seg button { border: 0; background: transparent; padding: 4px 10px; font-size: 12.5px; cursor: pointer; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+.seg button + button { border-left: 1px solid var(--border-strong); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.ptiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ptiles .tile-v { font-size: 19px; }
+.bars { display: flex; align-items: flex-end; gap: 3px; height: 120px; margin-top: 16px; padding-top: 8px; border-bottom: 1px solid var(--border-strong); position: relative; }
+.bars .b { flex: 1; min-width: 0; height: 100%; display: flex; align-items: flex-end; border-radius: 3px 3px 0 0; }
+.bars .b:hover { background: var(--surface-2); }
+.bars .b i { display: block; width: 100%; background: color-mix(in srgb, var(--accent) 60%, var(--surface)); border-radius: 3px 3px 0 0; min-height: 0; }
+.bars .b.has i { min-height: 2px; }
+.bars .b.today i { background: var(--accent); }
+.bars .b.cur i { background: var(--m-opus); }
+.bars-max { position: absolute; top: -6px; right: 0; font-size: 11px; color: var(--faint); }
+.bars-x { display: flex; justify-content: space-between; margin-top: 5px; font-size: 11px; color: var(--muted); }
+.bars-tip { min-height: 18px; margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; }
+.empty { padding: 60px 20px; text-align: center; color: var(--muted); }
+.backdrop { display: none; }
+
+@media (max-width: 1180px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 960px) {
+  #navToggle { display: inline-grid; }
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .sidebar {
+    position: fixed; top: 52px; left: 0; bottom: 0; height: auto; width: min(320px, 88vw); z-index: 25;
+    transform: translateX(-100%); transition: transform .2s ease; box-shadow: 0 10px 30px rgba(0,0,0,.18);
+  }
+  body.nav-open .sidebar { transform: none; }
+  body.nav-open .backdrop { display: block; position: fixed; inset: 52px 0 0 0; background: rgba(10, 12, 16, .35); z-index: 20; }
+  .main { padding: 16px; }
+}
+@media (max-width: 640px) {
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .excerpts { grid-template-columns: minmax(0, 1fr); }
+  .tl { --lw: 170px; --cw: 64px; min-width: 560px; }
+  .tile-v { font-size: 19px; }
+  .ptiles .tile-v { font-size: 16px; }
+  .top .gen { display: none; }
+  .theme-wrap { margin-left: auto; }
+  .live-ind { margin-left: auto; }
+  .live-ind:not([hidden]) ~ .theme-wrap { margin-left: 0; }
+  .search, .select { font-size: 16px; }
+}
+@media (max-height: 560px) {
+  .side-head { max-height: 60%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dot.live, .tl-bar.live::after { animation: none; }
+  .sidebar, .ag-chev { transition: none; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="icon-btn" id="navToggle" type="button" aria-label="Show sessions" aria-expanded="false" aria-controls="sidebar">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+  </button>
+  <div class="brand"><span class="brand-mark" aria-hidden="true">$</span><span>agent-cost</span></div>
+  <div class="gen" id="gen"></div>
+  <div class="live-ind" id="liveInd" role="status" hidden><span class="dot live"></span><span id="liveTxt"></span></div>
+  <div class="theme-wrap">
+    <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark theme"></button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar" aria-label="Sessions">
+    <div class="side-head">
+      <div class="search-wrap">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><path d="m14 14 4 4"/></svg>
+        <input class="search" id="filter" type="search" placeholder="Filter by task, project, model, id…" aria-label="Filter sessions" autocomplete="off">
+      </div>
+      <div class="seg full" id="stateSeg" role="group" aria-label="Session state"></div>
+      <div>
+        <div class="fl-label" id="rootLbl">Folder</div>
+        <div class="chips" id="rootChips" role="group" aria-labelledby="rootLbl"></div>
+      </div>
+      <select class="select" id="projSel" aria-label="Project"></select>
+      <div class="side-count"><span id="sideCount"></span><span class="links"><button type="button" class="link-btn" id="clearF" hidden>Clear</button><button type="button" class="link-btn" id="expandAll">Expand</button><button type="button" class="link-btn" id="collapseAll">Collapse</button></span></div>
+    </div>
+    <nav class="slist" id="slist"></nav>
+    <label class="hl-toggle side-foot" id="hlWrap" hidden><input type="checkbox" id="headlessT"><span id="hlTxt"></span></label>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+  <main class="main" id="main"></main>
+</div>
+<script>const DATA = /*__DATA__*/null;</script>
+<script>
+(function () {
+  "use strict";
+
+  var TOKEN_COLS = [
+    ["input", "Input"], ["output", "Output"], ["cache_read", "Cache read"],
+    ["cache_write_5m", "Write 5m"], ["cache_write_1h", "Write 1h"]
+  ];
+  var ICON = {
+    sun: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="10" cy="10" r="3.5"/><path d="M10 1.8v2M10 16.2v2M1.8 10h2M16.2 10h2M4.2 4.2l1.4 1.4M14.4 14.4l1.4 1.4M4.2 15.8l1.4-1.4M14.4 5.6l1.4-1.4"/></svg>',
+    moon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M16.5 12.3A7 7 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z"/></svg>',
+    folder: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 4.5c0-.8.7-1.5 1.5-1.5h3l1.5 1.5h4.5c.8 0 1.5.7 1.5 1.5v5.5c0 .8-.7 1.5-1.5 1.5h-9c-.8 0-1.5-.7-1.5-1.5z"/></svg>',
+    clock: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 4.8V8l2.2 1.4"/></svg>',
+    hash: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 2 4.5 14M11.5 2 10 14M2.5 5.5h11M2 10.5h11"/></svg>',
+    chev: '<svg class="ag-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 4.5 3 3 3-3"/></svg>'
+  };
+
+  var main = document.getElementById("main");
+  var slist = document.getElementById("slist");
+  var filterEl = document.getElementById("filter");
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function ms(iso) { return iso ? Date.parse(iso) : null; }
+  function usd(v) {
+    if (v == null || isNaN(v)) return "—";
+    if (v > 0 && v < 0.005) return "<$0.01";
+    return "$" + v.toFixed(2);
+  }
+  function dur(sec) {
+    if (sec == null || isNaN(sec)) return "—";
+    sec = Math.max(0, Math.round(sec));
+    if (sec < 60) return sec + "s";
+    var m = Math.floor(sec / 60);
+    if (m < 60) return m + "m";
+    var h = Math.floor(m / 60), rm = m % 60;
+    if (h < 24) return h + "h" + (rm < 10 ? "0" : "") + rm + "m";
+    var d = Math.floor(h / 24);
+    return d + "d" + (h % 24) + "h";
+  }
+  function tok(n) {
+    if (!n) return "0";
+    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e8 ? 0 : 1) + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e5 ? 0 : 1) + "k";
+    return String(n);
+  }
+  var tfmt = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" });
+  var dfmt = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" });
+  var dtfmt = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  var genfmt = new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  function hm(t) { return t == null ? "—" : tfmt.format(t); }
+  function dayKey(t) { var d = new Date(t); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+  function startOfDay(t) { var d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+  function addDays(t, n) { var d = new Date(t); d.setDate(d.getDate() + n); return d.getTime(); }
+
+  function family(model) {
+    var m = String(model || "").toLowerCase();
+    if (m.indexOf("opus") >= 0) return "opus";
+    if (m.indexOf("sonnet") >= 0) return "sonnet";
+    if (m.indexOf("haiku") >= 0) return "haiku";
+    if (m.indexOf("fable") >= 0) return "fable";
+    return "other";
+  }
+  function modelShort(model) {
+    if (!model) return "unknown";
+    var m = String(model).replace(/^claude-/, "").replace(/-\d{8}$/, "");
+    var parts = m.split("-");
+    if (parts.length >= 3 && /^\d+$/.test(parts[1])) return parts[0] + " " + parts.slice(1).join(".");
+    return m;
+  }
+  function project(cwd) {
+    if (!cwd) return "unknown";
+    var p = String(cwd).replace(/\/+$/, "").split("/");
+    return p[p.length - 1] || cwd;
+  }
+  function shortPath(cwd) { return String(cwd || "").replace(/^\/(Users|home)\/[^/]+/, "~"); }
+  function trimSlash(p) { return String(p || "").replace(/\/+$/, "") || "/"; }
+  function parentDir(p) { var i = p.lastIndexOf("/"); return i > 0 ? p.slice(0, i) : "/"; }
+
+  var PROOTS = [], VROOTS = [], NOW = Date.now(), roots = [], byRoot = {}, bySession = {}, focusId = null;
+  var FOLDERS = [], folderByKey = {}, PROJECTS = [], projByKey = {};
+  var LIVE = !DATA && /^https?:$/.test(location.protocol);
+
+  function classify(cwd) {
+    var c = trimSlash(cwd);
+    if (!cwd) return { rkey: "?", rname: "unknown", rpath: "", rorder: 1e9, pkey: "?|?", pname: "unknown", ppath: "", isRoot: false };
+    for (var i = 0; i < PROOTS.length; i++) {
+      var pr = PROOTS[i];
+      if (c === pr.path) return { rkey: "R" + pr.path, rname: pr.name, rpath: pr.path, rorder: pr.order, pkey: "R" + pr.path + "|", pname: "(root)", ppath: pr.path, isRoot: true };
+      if (c.indexOf(pr.path + "/") === 0) {
+        var seg = c.slice(pr.path.length + 1).split("/")[0];
+        return { rkey: "R" + pr.path, rname: pr.name, rpath: pr.path, rorder: pr.order, pkey: "R" + pr.path + "|" + seg, pname: seg, ppath: pr.path + "/" + seg, isRoot: false };
+      }
+    }
+    var par = parentDir(c);
+    if (PROOTS.length) return { rkey: "O", rname: "Other", rpath: "", rorder: 1e6, pkey: "O|" + c, pname: project(c), ppath: c, isRoot: false, ptitle: shortPath(par) + "/" };
+    return { rkey: "D" + par, rname: project(par), rpath: par, rorder: 0, pkey: "D" + par + "|" + c, pname: project(c), ppath: c, isRoot: false };
+  }
+
+  function showEmpty() {
+    main.innerHTML = '<div class="empty card"><h1 style="margin:0 0 6px;font-size:17px">No sessions recorded yet</h1><div>Run a Claude session with the agent-cost plugin enabled' + (LIVE ? "; this page updates by itself." : ", then build the report again.") + '</div></div>';
+    slist.innerHTML = "";
+    document.getElementById("navToggle").style.display = "none";
+    document.querySelector(".side-head").style.display = "none";
+  }
+
+  function load(data) {
+    if (!data || !Array.isArray(data.roots) || !data.roots.length) { roots = []; showEmpty(); return false; }
+    document.getElementById("navToggle").style.display = "";
+    document.querySelector(".side-head").style.display = "";
+    PROOTS = (Array.isArray(data.project_roots) ? data.project_roots : []).filter(function (x) { return x && x.path; })
+      .map(function (x, i) { var p = trimSlash(x.path); return { name: x.name || project(p), path: p, order: i }; })
+      .sort(function (a, b) { return b.path.length - a.path.length; });
+    NOW = ms(data.generated_at) || Date.now();
+    VROOTS = (Array.isArray(data.visible_roots) ? data.visible_roots : []).map(shortPath);
+    focusId = data.focus_root_session_id || null;
+    document.getElementById("gen").textContent = (LIVE ? "Data " : "Generated ") + genfmt.format(NOW);
+    roots = data.roots.map(prepRoot).sort(function (a, b) { return b.start - a.start; });
+    byRoot = {}; bySession = {};
+    roots.forEach(function (r) {
+      byRoot[r.id] = r;
+      r.sessions.forEach(function (s) { bySession[s.session_id] = r; });
+    });
+    FOLDERS = []; folderByKey = {}; PROJECTS = []; projByKey = {};
+    roots.forEach(function (r) {
+      var c = r.cl;
+      if (!folderByKey[c.rkey]) { folderByKey[c.rkey] = { key: c.rkey, name: c.rname, path: c.rpath, order: c.rorder }; FOLDERS.push(folderByKey[c.rkey]); }
+      if (!projByKey[c.pkey]) { projByKey[c.pkey] = { key: c.pkey, rkey: c.rkey, name: c.pname, path: c.ppath, isRoot: c.isRoot, title: c.ptitle }; PROJECTS.push(projByKey[c.pkey]); }
+    });
+    FOLDERS.sort(function (a, b) { return a.order - b.order || a.name.localeCompare(b.name); });
+    PROJECTS.sort(function (a, b) {
+      return folderByKey[a.rkey].order - folderByKey[b.rkey].order || (b.isRoot - a.isRoot) || a.name.localeCompare(b.name);
+    });
+    if (state.rf && !folderByKey[state.rf]) state.rf = "";
+    if (state.pf && !projByKey[state.pf]) state.pf = "";
+    return true;
+  }
+
+  function sessEnd(s) {
+    if (s.ended_at) return ms(s.ended_at);
+    if (s.state === "live") return NOW;
+    return ms(s.last_activity_at) || ms(s.started_at);
+  }
+
+  function prepRoot(raw) {
+    var sessions = (raw.sessions || []).slice();
+    var rootSess = sessions.filter(function (s) { return s.session_id === raw.root_session_id; })[0] || sessions[0] || {};
+    var start = Infinity, end = -Infinity, builtins = 0;
+    sessions.forEach(function (s) {
+      var a = ms(s.started_at), b = sessEnd(s);
+      if (a != null && a < start) start = a;
+      if (b != null && b > end) end = b;
+      (s.builtin_agents || []).forEach(function (x) {
+        builtins++;
+        var be = ms(x.ended_at);
+        if (be != null && be > end) end = be;
+      });
+    });
+    if (!isFinite(start)) start = ms(raw.generated_at) || NOW;
+    if (!isFinite(end) || end < start) end = start;
+    var t = raw.totals || {};
+    var total = t.cost_usd != null ? t.cost_usd : sessions.reduce(function (a, s) { return a + ((s.cost || {}).effective_usd || 0); }, 0);
+    var own = t.own_cost_usd != null ? t.own_cost_usd : ((rootSess.cost || {}).effective_usd || 0);
+    var cl = classify(rootSess.cwd);
+    var kids = sessions.filter(function (s) { return s !== rootSess; });
+    var hkids = kids.filter(function (s) { return s.kind === "headless"; }).length;
+    return {
+      raw: raw, id: raw.root_session_id || rootSess.session_id, main: rootSess, sessions: sessions,
+      cwd: rootSess.cwd || "", project: cl.isRoot ? cl.rname + " (root)" : cl.pname, cl: cl, state: rootSess.state || "ended",
+      start: start, end: end, total: total, own: own,
+      agents: t.agents_cost_usd != null ? t.agents_cost_usd : total - own,
+      herdr: kids.length - hkids, hkids: hkids, builtins: builtins,
+      headless: !!(rootSess.headless || rootSess.kind === "headless"),
+      hidden: !!raw.hidden,
+      title: ((rootSess.task || {}).description) || ((rootSess.task || {}).prompt_excerpt) || "Session " + String(raw.root_session_id || "").slice(0, 8)
+    };
+  }
+
+  function relDay(t) {
+    var diff = Math.round((startOfDay(NOW) - startOfDay(t)) / 864e5);
+    if (diff === 0) return "Today";
+    if (diff === 1) return "Yesterday";
+    return dfmt.format(t);
+  }
+
+  var state = { root: null, sel: null, scope: "all", filter: "", st: "all", rf: "", pf: "", headless: false };
+  try { state.headless = localStorage.getItem("agent-cost-show-headless") === "1"; } catch (e) {}
+  var OPEN_KEY = "agent-cost-sidebar-open";
+  var openMap = {}, qOpen = {};
+  try { openMap = JSON.parse(localStorage.getItem(OPEN_KEY) || "{}"); } catch (e) {}
+  if (!openMap || typeof openMap !== "object" || Array.isArray(openMap)) openMap = {};
+  function saveOpen() { try { localStorage.setItem(OPEN_KEY, JSON.stringify(openMap)); } catch (e) {} }
+  function querying() { return !!state.filter.trim(); }
+  function isOpen(key) {
+    if (querying()) return key in qOpen ? qOpen[key] : true;
+    if (Object.prototype.hasOwnProperty.call(openMap, key)) return !!openMap[key];
+    var c = state.root && state.root.cl;
+    return !!c && (key === "r:" + c.rkey || key === "p:" + c.pkey);
+  }
+  function setOpen(key, v) {
+    if (querying()) qOpen[key] = v;
+    else openMap[key] = v;
+  }
+
+  function projLabel(p, withFolder) {
+    if (p.isRoot) return folderByKey[p.rkey].name + " (root)";
+    return withFolder ? folderByKey[p.rkey].name + " / " + p.name : p.name;
+  }
+
+  function matchState(r) { return state.st === "all" || (state.st === "active" ? r.state === "live" : r.state !== "live"); }
+  function matchText(r, q) {
+    if (!q) return true;
+    var hay = [r.title, r.cwd, r.id, r.state, r.cl.rname, r.cl.pname].concat(r.sessions.map(function (s) {
+      return [s.role, s.model, s.session_id, (s.task || {}).description].join(" ");
+    })).join(" ").toLowerCase();
+    return hay.indexOf(q) >= 0;
+  }
+  function visible(r) { return state.headless || (!r.headless && !r.hidden) || r === state.root; }
+  function visibleRoots() { return roots.filter(visible); }
+  function baseList(withHeadless) {
+    var q = state.filter.trim().toLowerCase();
+    return roots.filter(function (r) { return (withHeadless || visible(r)) && matchState(r) && matchText(r, q); });
+  }
+  function matchFolder(r) { return (!state.rf || r.cl.rkey === state.rf) && (!state.pf || r.cl.pkey === state.pf); }
+  function filtersOn() { return !!(querying() || state.st !== "all" || state.rf || state.pf); }
+
+  function renderFilters(base) {
+    var all = roots.filter(function (r) { return visible(r) && matchText(r, state.filter.trim().toLowerCase()) && matchFolder(r); });
+    var live = all.filter(function (r) { return r.state === "live"; }).length;
+    document.getElementById("stateSeg").innerHTML = [["all", "All", all.length], ["active", "Active", live], ["inactive", "Inactive", all.length - live]].map(function (o) {
+      return '<button type="button" data-st="' + o[0] + '" aria-pressed="' + (state.st === o[0]) + '"' + (o[0] === "active" ? ' title="Live sessions"' : o[0] === "inactive" ? ' title="Idle and ended sessions"' : "") + '>' + o[1] + '<span class="n">' + o[2] + '</span></button>';
+    }).join("");
+    var cnt = {};
+    base.forEach(function (r) { cnt[r.cl.rkey] = (cnt[r.cl.rkey] || 0) + 1; cnt[r.cl.pkey] = (cnt[r.cl.pkey] || 0) + 1; });
+    document.getElementById("rootChips").innerHTML = [{ key: "", name: "All", n: base.length }].concat(FOLDERS.map(function (f) { return { key: f.key, name: f.name, n: cnt[f.key] || 0, path: f.path }; }).filter(function (f) { return f.n || f.key === state.rf; })).map(function (f) {
+      return '<button type="button" class="chip" data-rf="' + esc(f.key) + '" aria-pressed="' + (state.rf === f.key) + '"' + (f.path ? ' title="' + esc(shortPath(f.path)) + '"' : "") + '>' + esc(f.name) + '<span class="n">' + f.n + '</span></button>';
+    }).join("");
+    var opts = PROJECTS.filter(function (p) { return !state.rf || p.rkey === state.rf; });
+    var sel = document.getElementById("projSel");
+    sel.innerHTML = '<option value="">' + (state.rf ? "All projects in " + esc(folderByKey[state.rf].name) : "All projects") + '</option>' + opts.map(function (p) {
+      return '<option value="' + esc(p.key) + '"' + (state.pf === p.key ? " selected" : "") + '>' + esc(projLabel(p, !state.rf)) + " (" + (cnt[p.key] || 0) + ")</option>";
+    }).join("");
+    sel.value = state.pf;
+    sel.disabled = !opts.length;
+    document.getElementById("clearF").hidden = !filtersOn();
+    var nh = roots.filter(function (r) { return r.headless || r.hidden; }).length;
+    document.getElementById("hlWrap").hidden = !nh;
+    document.getElementById("headlessT").checked = state.headless;
+    document.getElementById("hlTxt").textContent = "Show hidden (" + nh + ")";
+    document.getElementById("hlWrap").title = "Sessions outside visible_roots (" + VROOTS.join(", ") + ") and unlinked headless runs. Spend over time counts sessions outside visible_roots only while they are shown.";
+  }
+
+  var agSeq = 0;
+  function agHead(key, open, icon, name, nameCls, n, sum, live, title, bodyId) {
+    return '<button type="button" class="ag-head" data-ag="' + esc(key) + '" aria-expanded="' + open + '" aria-controls="' + bodyId + '"' + (title ? ' title="' + esc(title) + '"' : "") + '>' +
+      ICON.chev + (icon ? '<span class="ico">' + icon + '</span>' : "") + '<span class="ag-name' + (nameCls ? " " + nameCls : "") + '">' + esc(name) + '</span>' +
+      '<span class="ag-n" title="' + n + (n === 1 ? " session" : " sessions") + '">' + n + '</span>' + (live ? '<span class="dot live" title="' + live + ' live"></span>' : "") +
+      '<span class="ag-sum">' + usd(sum) + '</span></button>';
+  }
+  function sitemHtml(r) {
+    var n = r.herdr + r.builtins;
+    return '<a class="sitem' + (state.root === r ? " active" : "") + '" href="#' + esc(r.id) + '"' + (state.root === r ? ' aria-current="page"' : "") + '>' +
+      '<div class="sitem-l1"><span class="dot ' + esc(r.state) + '" title="' + esc(r.state) + '"></span><span>' + esc(relDay(r.start)) + " " + hm(r.start) + '</span><span class="cost">' + usd(r.total) + '</span></div>' +
+      '<div class="sitem-desc" title="' + esc(r.title) + '">' + esc(r.title) + '</div>' +
+      '<div class="sitem-l3">' + dur((r.end - r.start) / 1000) + " · " + (n ? n + (n === 1 ? " agent" : " agents") : "no agents") + (r.state !== "ended" ? " · " + esc(r.state) : "") + '</div></a>';
+  }
+  function sumOf(list) { return list.reduce(function (a, r) { return a + r.total; }, 0); }
+  function liveOf(list) { return list.filter(function (r) { return r.state === "live"; }).length; }
+
+  function renderList() {
+    var base = baseList();
+    renderFilters(base);
+    var shown = base.filter(matchFolder);
+    var fmap = {};
+    shown.forEach(function (r) {
+      var f = fmap[r.cl.rkey] = fmap[r.cl.rkey] || { f: folderByKey[r.cl.rkey], items: [], projs: {}, porder: [] };
+      f.items.push(r);
+      if (!f.projs[r.cl.pkey]) { f.projs[r.cl.pkey] = []; f.porder.push(r.cl.pkey); }
+      f.projs[r.cl.pkey].push(r);
+    });
+    var fl = FOLDERS.filter(function (f) { return fmap[f.key]; });
+    var nproj = fl.reduce(function (a, f) { return a + fmap[f.key].porder.length; }, 0);
+    var vis = visibleRoots().length;
+    document.getElementById("sideCount").textContent = shown.length === vis
+      ? vis + " sessions · " + nproj + " projects"
+      : shown.length + " of " + vis + " sessions";
+    if (!shown.length) {
+      slist.innerHTML = '<div class="empty-list">No sessions match the filters.<br><button type="button" class="link-btn" data-clear>Clear filters</button></div>';
+      return;
+    }
+    agSeq = 0;
+    var single = fl.length === 1 && !!(state.rf || state.pf);
+    slist.innerHTML = fl.map(function (fd) {
+      var g = fmap[fd.key];
+      var rk = "r:" + fd.key, rb = "ag" + (agSeq++), ro = isOpen(rk) || single;
+      var projHtml = g.porder.map(function (pk) {
+        var items = g.projs[pk], p = projByKey[pk];
+        var key = "p:" + pk, pb = "ag" + (agSeq++), po = isOpen(key) || (single && g.porder.length === 1);
+        return '<section class="ag ag-proj">' +
+          agHead(key, po, "", p.isRoot ? "(root)" : p.name, p.isRoot ? "dim" : "", items.length, sumOf(items), liveOf(items), (p.title ? p.title : "") + shortPath(p.path), pb) +
+          '<div class="ag-body" id="' + pb + '"' + (po ? "" : " hidden") + '>' + items.map(sitemHtml).join("") + '</div></section>';
+      }).join("");
+      return '<section class="ag ag-root">' +
+        agHead(rk, ro, ICON.folder, fd.name, "", g.items.length, sumOf(g.items), liveOf(g.items), fd.path ? shortPath(fd.path) : "Outside the configured folders", rb) +
+        '<div class="ag-body" id="' + rb + '"' + (ro ? "" : " hidden") + '>' + projHtml + '</div></section>';
+    }).join("");
+  }
+
+  function toggleAg(btn, v) {
+    var key = btn.getAttribute("data-ag");
+    var open = v == null ? btn.getAttribute("aria-expanded") !== "true" : v;
+    setOpen(key, open);
+    btn.setAttribute("aria-expanded", String(open));
+    var body = document.getElementById(btn.getAttribute("aria-controls"));
+    if (body) body.hidden = !open;
+  }
+  function setAll(v) {
+    slist.querySelectorAll(".ag-head").forEach(function (b) { toggleAg(b, v); });
+    if (!querying()) saveOpen();
+  }
+  function refreshPeriod() {
+    var el = document.getElementById("period");
+    if (!el || !state.root) return;
+    var tmp = document.createElement("div");
+    tmp.innerHTML = renderPeriod(state.root);
+    el.replaceWith(tmp.firstChild);
+  }
+  function filtersChanged() { renderList(); refreshPeriod(); }
+  function setFolderFilter(rf, pf) {
+    state.rf = rf;
+    state.pf = pf && projByKey[pf] && (!rf || projByKey[pf].rkey === rf) ? pf : "";
+    state.scope = state.rf || state.pf ? "project" : "all";
+    filtersChanged();
+  }
+  function rowsFor(r) {
+    var kids = {};
+    r.sessions.forEach(function (s) {
+      if (s === r.main) return;
+      var p = s.parent_session_id && bySession[s.parent_session_id] === r ? s.parent_session_id : r.main.session_id;
+      (kids[p] = kids[p] || []).push(s);
+    });
+    var rows = [], seen = {};
+    function walk(s, depth) {
+      if (seen[s.session_id]) return;
+      seen[s.session_id] = true;
+      rows.push({ key: "s:" + s.session_id, type: "session", s: s, depth: depth, start: ms(s.started_at), end: sessEnd(s) });
+      var items = (kids[s.session_id] || []).map(function (c) { return { c: c, t: ms(c.started_at) }; });
+      (s.builtin_agents || []).forEach(function (b, i) { items.push({ b: b, i: i, t: ms(b.started_at) }); });
+      items.sort(function (a, b) { return (a.t || 0) - (b.t || 0); });
+      items.forEach(function (it) {
+        if (it.c) walk(it.c, depth + 1);
+        else rows.push({ key: "b:" + s.session_id + ":" + it.i, type: "builtin", b: it.b, parent: s, depth: depth + 1, start: ms(it.b.started_at), end: ms(it.b.ended_at) || (s.state === "live" ? NOW : sessEnd(s)) });
+      });
+    }
+    walk(r.main, 0);
+    r.sessions.forEach(function (s) { if (!seen[s.session_id]) walk(s, 1); });
+    return rows;
+  }
+
+  function ticks(t0, t1) {
+    var span = Math.max(t1 - t0, 60000);
+    var steps = [1, 2, 5, 10, 15, 30, 60, 120, 180, 360, 720, 1440];
+    var step = steps[steps.length - 1];
+    for (var i = 0; i < steps.length; i++) if (span / (steps[i] * 60000) <= 8) { step = steps[i]; break; }
+    var d = new Date(t0); d.setSeconds(0, 0);
+    if (step < 60) d.setMinutes(Math.ceil(d.getMinutes() / step) * step);
+    else { d.setMinutes(0); d.setHours(Math.floor(d.getHours() / (step / 60)) * (step / 60)); }
+    var out = [], t = d.getTime();
+    while (t < t0) t += step * 60000;
+    for (; t <= t1; t += step * 60000) out.push(t);
+    return { list: out, multiDay: dayKey(t0) !== dayKey(t1) };
+  }
+
+  function rowLabel(row) {
+    if (row.type === "builtin") return row.b.agent_type || "built-in";
+    return row.s.kind === "main" || row.depth === 0 ? "main" : (row.s.role || "agent");
+  }
+  function rowPurpose(row) { return row.type === "session" && row.depth > 0 ? row.s.purpose || "" : ""; }
+  function rowModel(row) { return row.type === "builtin" ? row.b.model : row.s.model; }
+  function rowEffort(row) { return row.type === "builtin" ? row.b.effort : row.s.effort; }
+  function rowCost(row) { return row.type === "builtin" ? row.b.cost_usd : (row.s.cost || {}).effective_usd; }
+  function rowLive(row) { return row.type === "session" && row.s.state === "live"; }
+
+  function renderTimeline(r, rows) {
+    var t1 = Math.max(r.end, r.start + 60000);
+    var t0 = r.start - (t1 - r.start) * 0.04;
+    var span = t1 - t0;
+    var tk = ticks(r.start, t1);
+    function pct(t) { return Math.max(0, Math.min(100, (t - t0) / span * 100)); }
+    var live = r.sessions.some(function (s) { return s.state === "live"; });
+    var axis = tk.list.map(function (t) {
+      var p = pct(t);
+      if (live && p > 92) return "";
+      var lbl = tk.multiDay && new Date(t).getHours() === 0 && new Date(t).getMinutes() === 0 ? dfmt.format(t) : hm(t);
+      return '<span class="tick" style="left:' + p.toFixed(3) + '%">' + esc(lbl) + '</span>';
+    }).join("") + (live ? '<span class="tick now" style="left:auto;right:0;transform:none">now</span>' : "");
+    var grid = tk.list.map(function (t) { return '<i style="left:' + pct(t).toFixed(3) + '%"></i>'; }).join("") + (live ? '<i class="now" style="left:100%"></i>' : "");
+    var body = rows.map(function (row, idx) {
+      var fam = family(rowModel(row));
+      var a = pct(row.start), b = pct(row.end == null ? row.start : row.end);
+      var meta = [modelShort(rowModel(row)), rowEffort(row), dur(((row.end || row.start) - row.start) / 1000)].filter(Boolean).join(" · ");
+      var role = rowLabel(row);
+      var tip = role + " · " + hm(row.start) + "–" + (rowLive(row) ? "now" : hm(row.end)) + " · " + dur(((row.end || row.start) - row.start) / 1000) + " · " + usd(rowCost(row));
+      return '<button type="button" class="tl-row' + (row.type === "builtin" ? " builtin" : "") + (state.sel === row.key ? " sel" : "") + '" data-key="' + esc(row.key) + '" data-idx="' + idx + '" aria-pressed="' + (state.sel === row.key) + '">' +
+        '<span class="tl-label" style="--d:' + row.depth + '">' + (row.depth ? '<span class="tl-elbow" aria-hidden="true"></span>' : "") +
+        '<span class="tl-text"><span class="tl-role">' + esc(role) + (row.type === "builtin" ? '<span class="incl" title="Cost is included in the parent session">incl.</span>' : "") + (rowPurpose(row) ? '<span class="pur">' + esc(rowPurpose(row)) + '</span>' : "") + (rowLive(row) ? '<span class="dot live" title="live"></span>' : "") + '</span>' +
+        '<span class="tl-meta">' + esc(meta) + '</span></span></span>' +
+        '<span class="tl-track"><span class="tl-bar f-' + fam + (rowLive(row) ? " live" : "") + '" title="' + esc(tip) + '" style="left:' + a.toFixed(3) + '%;width:' + Math.max(b - a, 0.3).toFixed(3) + '%"></span></span>' +
+        '<span class="tl-cost">' + usd(rowCost(row)) + '</span></button>';
+    }).join("");
+    var fams = {};
+    rows.forEach(function (row) { fams[family(rowModel(row))] = rowModel(row); });
+    var legend = ["opus", "sonnet", "haiku", "fable", "other"].filter(function (f) { return fams[f]; }).map(function (f) {
+      return '<span><i class="sw f-' + f + '"></i>' + esc(f === "other" ? "other" : f) + '</span>';
+    }).join("") + (r.builtins ? '<span><i class="sw hatch"></i>built-in (incl.)</span>' : "");
+    return '<section class="card" aria-labelledby="tlTitle"><div class="card-head"><h2 class="card-title" id="tlTitle">Timeline</h2><span class="card-sub">' +
+      rows.length + ' rows · ' + hm(r.start) + ' → ' + (live ? "now" : hm(t1)) + '</span><div class="legend">' + legend + '</div></div>' +
+      '<div class="tl-scroll"><div class="tl" id="tl"><div class="tl-axis"><span class="sticky-col">Agent</span><span class="tl-ticks">' + axis + '</span><span class="num">Cost</span></div>' +
+      '<div class="tl-grid" aria-hidden="true">' + grid + '</div>' + body + '</div></div>' +
+      '<div class="tl-foot">Built-in agents are part of their parent session’s cost and are not added to the total. Select a row for details.</div></section>';
+  }
+
+  function tokenTable(byModel, opts) {
+    opts = opts || {};
+    var models = Object.keys(byModel || {}).sort(function (a, b) { return (byModel[b].cost_usd || 0) - (byModel[a].cost_usd || 0); });
+    if (!models.length) return '<div class="note">No token usage recorded.</div>';
+    var tot = { cost_usd: 0 };
+    TOKEN_COLS.forEach(function (c) { tot[c[0]] = 0; });
+    var body = models.map(function (m) {
+      var t = byModel[m] || {};
+      TOKEN_COLS.forEach(function (c) { tot[c[0]] += t[c[0]] || 0; });
+      tot.cost_usd += t.cost_usd || 0;
+      return '<tr><td><span class="mname"><i class="sw f-' + family(m) + '"></i>' + esc(modelShort(m)) + '</span></td>' +
+        TOKEN_COLS.map(function (c) { return '<td class="num" title="' + esc((t[c[0]] || 0).toLocaleString()) + '">' + tok(t[c[0]]) + '</td>'; }).join("") +
+        '<td class="num"><b>' + usd(t.cost_usd) + '</b></td></tr>';
+    }).join("");
+    var foot = models.length > 1 || opts.extra ? '<tfoot>' + (opts.extra || "") + '<tr><td>Total</td>' + TOKEN_COLS.map(function (c) {
+      return '<td class="num" title="' + esc(tot[c[0]].toLocaleString()) + '">' + tok(tot[c[0]]) + '</td>';
+    }).join("") + '<td class="num">' + usd(tot.cost_usd + (opts.extraCost || 0)) + '</td></tr></tfoot>' : "";
+    return '<div class="tbl-wrap"><table class="tbl"><thead><tr><th scope="col">Model</th>' + TOKEN_COLS.map(function (c) { return '<th scope="col">' + c[1] + '</th>'; }).join("") +
+      '<th scope="col">Cost</th></tr></thead><tbody>' + body + '</tbody>' + foot + '</table></div>';
+  }
+
+  function renderDetail(r, rows) {
+    var row = rows.filter(function (x) { return x.key === state.sel; })[0] || rows[0];
+    state.sel = row.key;
+    var isB = row.type === "builtin";
+    var src = isB ? row.b : row.s;
+    var task = isB ? { description: row.b.description, prompt_excerpt: row.b.prompt_excerpt } : (row.s.task || {});
+    var cost = rowCost(row) || 0;
+    var share = r.total > 0 ? cost / r.total * 100 : 0;
+    var live = rowLive(row);
+    var badges = [];
+    if (isB) badges.push('<span class="badge kind">built-in · incl. in ' + esc(row.parent.kind === "main" || row.parent.depth === 0 ? "main" : row.parent.role) + '</span>');
+    else if (row.depth === 0) badges.push('<span class="badge kind">main session</span>');
+    else badges.push('<span class="badge kind">' + (row.s.kind === "headless" ? "headless" : "herdr") + ' · depth ' + esc(row.s.depth != null ? row.s.depth : row.depth) + '</span>');
+    if (rowPurpose(row)) badges.push('<span class="badge kind purpose">' + esc(rowPurpose(row)) + '</span>');
+    if (!isB) badges.push('<span class="badge ' + esc(row.s.state) + '">' + (row.s.state === "live" ? '<span class="dot live"></span>' : "") + esc(row.s.state) + '</span>');
+    var kv = [
+      ["Model", '<span class="mname"><i class="sw f-' + family(src.model) + '"></i>' + esc(modelShort(src.model)) + '</span>'],
+      ["Effort", esc(src.effort || "—")],
+      ["Started", esc(dtfmt.format(row.start))],
+      [live ? "Running" : "Ended", live ? "now" : (row.end ? esc(dtfmt.format(row.end)) : "—")],
+      ["Duration", esc(dur(((row.end || row.start) - row.start) / 1000))],
+      [isB ? "Cost (included)" : "Cost", '<b>' + usd(cost) + '</b>'],
+      ["Share of total", '<span class="share"><span class="share-bar"><i style="width:' + Math.min(100, share).toFixed(1) + '%"></i></span>' + share.toFixed(share < 10 ? 1 : 0) + '%</span>']
+    ];
+    var note = "";
+    if (!isB) {
+      var c = row.s.cost || {};
+      if (row.s.subtree_cost_usd != null && Math.abs(row.s.subtree_cost_usd - cost) > 0.005) kv.push(["With sub-agents", usd(row.s.subtree_cost_usd)]);
+      kv.push(["Reported", c.reported_usd != null ? usd(c.reported_usd) + ' <span class="faint">' + esc(c.reported_source || "") + '</span>' : '<span class="faint">not yet</span>']);
+      kv.push(["Estimated", usd(c.estimated_usd)]);
+      if (row.s.herdr_id) kv.push(["Herdr id", '<span class="mono">' + esc(row.s.herdr_id) + '</span>']);
+      kv.push(["Session", '<span class="mono" title="' + esc(row.s.session_id) + '">' + esc(String(row.s.session_id).slice(0, 8)) + '…</span>']);
+      var bl = row.s.builtin_agents || [];
+      if (bl.length) {
+        var bsum = bl.reduce(function (a, b) { return a + (b.cost_usd || 0); }, 0);
+        note = '<div class="note">Includes ' + bl.length + ' built-in agent' + (bl.length > 1 ? "s" : "") + ' (' + usd(bsum) + '); the table below shows this session’s own transcript only.</div>';
+      }
+      if (c.reported_usd != null && c.estimated_usd != null && c.reported_usd > c.estimated_usd + 0.005) {
+        note += '<div class="note">Reported cost is ' + usd(c.reported_usd - c.estimated_usd) + ' above the token estimate (hidden calls); the higher value is used.</div>';
+      }
+    }
+    var result = isB ? row.b.result_excerpt : row.s.result_excerpt;
+    function ex(k, v, emptyText) {
+      return '<div class="excerpt"><div class="excerpt-k">' + k + '</div>' + (v ? '<p class="excerpt-v">' + esc(v) + '</p>' : '<p class="excerpt-v none">' + esc(emptyText) + '</p>') + '</div>';
+    }
+    return '<section class="card" id="detail" aria-live="polite" aria-labelledby="dTitle"><div class="detail-head"><h2 id="dTitle">' + esc(rowLabel(row)) + '</h2>' + badges.join("") + '</div>' +
+      (task.description ? '<div class="detail-desc">' + esc(task.description) + '</div>' : "") +
+      '<dl class="kv">' + kv.map(function (p) { return '<div><dt>' + p[0] + '</dt><dd>' + p[1] + '</dd></div>'; }).join("") + '</dl>' +
+      '<div class="excerpts">' + ex("Prompt", task.prompt_excerpt, "No prompt captured.") + ex("Result", result, live ? "Still running — no result yet." : "No result captured.") + '</div>' +
+      note + tokenTable(isB ? row.b.by_model : (row.s.cost || {}).by_model) + '</section>';
+  }
+
+  function renderModels(r) {
+    var bm = (r.raw.totals || {}).by_model;
+    if (!bm) {
+      bm = {};
+      r.sessions.forEach(function (s) {
+        [(s.cost || {}).by_model].concat((s.builtin_agents || []).map(function (b) { return b.by_model; })).forEach(function (m) {
+          Object.keys(m || {}).forEach(function (k) {
+            var a = bm[k] = bm[k] || { cost_usd: 0 };
+            Object.keys(m[k]).forEach(function (f) { a[f] = (a[f] || 0) + (m[k][f] || 0); });
+          });
+        });
+      });
+    }
+    var models = Object.keys(bm).sort(function (a, b) { return (bm[b].cost_usd || 0) - (bm[a].cost_usd || 0); });
+    var sum = models.reduce(function (a, m) { return a + (bm[m].cost_usd || 0); }, 0);
+    var gap = r.total - sum;
+    var denom = Math.max(r.total, sum) || 1;
+    var stack = models.map(function (m) {
+      return '<i class="f-' + family(m) + '" style="width:' + ((bm[m].cost_usd || 0) / denom * 100).toFixed(2) + '%" title="' + esc(modelShort(m) + " " + usd(bm[m].cost_usd)) + '"></i>';
+    }).join("") + (gap > 0.005 ? '<i class="f-other" style="opacity:.45;width:' + (gap / denom * 100).toFixed(2) + '%" title="unattributed ' + usd(gap) + '"></i>' : "");
+    var legend = models.map(function (m) {
+      var c = bm[m].cost_usd || 0;
+      return '<div><i class="sw f-' + family(m) + '"></i><span>' + esc(modelShort(m)) + '</span><b>' + usd(c) + '</b><span class="pct">' + (c / denom * 100).toFixed(0) + '%</span></div>';
+    }).join("") + (gap > 0.005 ? '<div><i class="sw f-other" style="opacity:.45"></i><span class="muted">unattributed</span><b>' + usd(gap) + '</b><span class="pct">' + (gap / denom * 100).toFixed(0) + '%</span></div>' : "");
+    var extra = gap > 0.005 ? '<tr><td class="muted" title="Reported cost above the token estimate">Unattributed</td>' + TOKEN_COLS.map(function () { return '<td class="num faint">—</td>'; }).join("") + '<td class="num">' + usd(gap) + '</td></tr>' : "";
+    return '<section class="card" aria-labelledby="mTitle"><div class="card-head"><h2 class="card-title" id="mTitle">By model</h2><span class="card-sub">whole session tree incl. built-ins</span></div>' +
+      '<div class="card-body"><div class="stack">' + stack + '</div><div class="mlegend">' + legend + '</div></div>' +
+      tokenTable(bm, { extra: extra, extraCost: gap > 0.005 ? gap : 0 }) + '</section>';
+  }
+
+  function scopeTarget(r) {
+    if (state.pf) { var p = projByKey[state.pf]; return { label: projLabel(p, false), title: shortPath(p.path), test: function (x) { return x.cl.pkey === state.pf; } }; }
+    if (state.rf) { var f = folderByKey[state.rf]; return { label: f.name, title: f.path ? shortPath(f.path) : "Outside the configured folders", test: function (x) { return x.cl.rkey === state.rf; } }; }
+    return { label: r.project, title: r.cwd, test: function (x) { return x.cl.pkey === r.cl.pkey; } };
+  }
+
+  function renderPeriod(r) {
+    var base = baseList(true).filter(function (x) { return state.headless || !x.hidden; }), tgt = scopeTarget(r);
+    var scoped = state.scope === "project" ? base.filter(tgt.test) : base;
+    var fnote = [state.st === "active" ? "active only" : state.st === "inactive" ? "inactive only" : "", querying() ? "“" + state.filter.trim() + "”" : ""].filter(Boolean).join(" · ");
+    var today0 = startOfDay(NOW);
+    function sumSince(t) {
+      var c = 0, n = 0;
+      scoped.forEach(function (x) { if (x.start >= t && x.start <= NOW + 864e5) { c += x.total; n++; } });
+      return [c, n];
+    }
+    var d1 = sumSince(today0), d7 = sumSince(addDays(today0, -6)), d30 = sumSince(addDays(today0, -29));
+    var days = [];
+    for (var i = 29; i >= 0; i--) days.push({ t: addDays(today0, -i), c: 0, n: 0 });
+    var idx = {};
+    days.forEach(function (d) { idx[dayKey(d.t)] = d; });
+    scoped.forEach(function (x) { var d = idx[dayKey(x.start)]; if (d) { d.c += x.total; d.n++; } });
+    var max = days.reduce(function (a, d) { return Math.max(a, d.c); }, 0) || 1;
+    var curKey = dayKey(r.start);
+    var bars = days.map(function (d, i) {
+      var k = dayKey(d.t);
+      var cls = "b" + (d.c > 0 ? " has" : "") + (k === dayKey(NOW) ? " today" : "") + (k === curKey ? " cur" : "");
+      var label = dfmt.format(d.t) + ": " + usd(d.c) + " · " + d.n + (d.n === 1 ? " session" : " sessions");
+      return '<span class="' + cls + '" data-tip="' + esc(label) + '" title="' + esc(label) + '"><i style="height:' + (d.c / max * 100).toFixed(1) + '%"></i></span>';
+    }).join("");
+    function tile(k, v) {
+      return '<div class="tile"><div class="tile-k">' + k + '</div><div class="tile-v">' + usd(v[0]) + '</div><div class="tile-s">' + v[1] + (v[1] === 1 ? " session" : " sessions") + '</div></div>';
+    }
+    return '<section class="card" id="period" aria-labelledby="pTitle"><div class="card-head"><h2 class="card-title" id="pTitle">Spend over time</h2>' +
+      (fnote ? '<span class="card-sub">' + esc(fnote) + '</span>' : "") +
+      '<div class="seg" role="group" aria-label="Scope"><button type="button" data-scope="all" aria-pressed="' + (state.scope === "all") + '">All projects</button>' +
+      '<button type="button" data-scope="project" aria-pressed="' + (state.scope === "project") + '" title="' + esc(tgt.title) + '">' + esc(tgt.label) + '</button></div></div>' +
+      '<div class="card-body"><div class="ptiles">' + tile("Today", d1) + tile("7 days", d7) + tile("30 days", d30) + '</div>' +
+      '<div class="bars" id="bars" role="img" aria-label="Daily spend for the last 30 days, max ' + esc(usd(max)) + '">' + bars + '<span class="bars-max">' + usd(max) + '</span></div>' +
+      '<div class="bars-x"><span>' + esc(dfmt.format(days[0].t)) + '</span><span>' + esc(dfmt.format(days[15].t)) + '</span><span>Today</span></div>' +
+      '<div class="bars-tip" id="barsTip">Hover a bar for the day’s total. Highlighted: this session’s day.</div></div></section>';
+  }
+
+  function renderHeader(r) {
+    var span = (r.end - r.start) / 1000;
+    var endLbl = r.state === "live" ? "now" : (dayKey(r.end) !== dayKey(r.start) ? dtfmt.format(r.end) : hm(r.end));
+    var stateTitle = r.state === "idle" ? "No activity since " + hm(ms(r.main.last_activity_at)) : r.state;
+    return '<section class="card shead" aria-labelledby="sTitle"><div class="shead-top"><h1 id="sTitle">' + esc(r.title) + '</h1>' +
+      '<span class="badge ' + esc(r.state) + '" title="' + esc(stateTitle) + '">' + (r.state === "live" ? '<span class="dot live"></span>' : "") + esc(r.state) + '</span></div>' +
+      '<div class="meta-row"><span title="' + esc(r.cwd) + '">' + ICON.folder + esc(shortPath(r.cwd)) + '</span>' +
+      '<span>' + ICON.clock + esc(relDay(r.start) + " " + hm(r.start)) + ' → ' + esc(endLbl) + '</span>' +
+      '<span class="mono" title="' + esc(r.id) + '">' + ICON.hash + esc(r.id) + '</span></div>' +
+      '<div class="tiles">' +
+      '<div class="tile primary"><div class="tile-k">Total</div><div class="tile-v">' + usd(r.total) + '</div><div class="tile-s">' + r.sessions.length + (r.sessions.length === 1 ? " session" : " sessions") + (r.builtins ? " · " + r.builtins + " built-in" : "") + '</div></div>' +
+      '<div class="tile"><div class="tile-k">Main</div><div class="tile-v">' + usd(r.own) + '</div><div class="tile-s">' + esc(modelShort(r.main.model)) + (r.main.effort ? " · " + esc(r.main.effort) : "") + '</div></div>' +
+      '<div class="tile"><div class="tile-k">Agents</div><div class="tile-v">' + usd(r.agents) + '</div><div class="tile-s">' + r.herdr + ' herdr' + (r.hkids ? " · " + r.hkids + " headless" : "") + (r.total > 0 ? " · " + (r.agents / r.total * 100).toFixed(0) + "% of total" : "") + '</div></div>' +
+      '<div class="tile"><div class="tile-k">Time</div><div class="tile-v">' + dur(span) + '</div><div class="tile-s">' + esc(hm(r.start)) + ' → ' + esc(r.state === "live" ? "now" : hm(r.end)) + '</div></div>' +
+      '</div></section>';
+  }
+
+  var currentRows = [];
+  function render() {
+    var r = state.root;
+    currentRows = rowsFor(r);
+    if (!currentRows.some(function (x) { return x.key === state.sel; })) state.sel = currentRows[0].key;
+    main.innerHTML = renderHeader(r) + renderTimeline(r, currentRows) + renderDetail(r, currentRows) +
+      '<div class="grid2">' + renderModels(r) + renderPeriod(r) + '</div>';
+    document.title = "Agent Cost · " + r.title;
+    renderList();
+  }
+
+  function selectRow(key, focus) {
+    state.sel = key;
+    var tl = document.getElementById("tl");
+    tl.querySelectorAll(".tl-row").forEach(function (b) {
+      var on = b.getAttribute("data-key") === key;
+      b.classList.toggle("sel", on);
+      b.setAttribute("aria-pressed", String(on));
+      if (on && focus) b.focus();
+    });
+    var old = document.getElementById("detail");
+    var tmp = document.createElement("div");
+    tmp.innerHTML = renderDetail(state.root, currentRows);
+    old.replaceWith(tmp.firstChild);
+  }
+
+  main.addEventListener("click", function (e) {
+    var row = e.target.closest(".tl-row");
+    if (row) { selectRow(row.getAttribute("data-key")); return; }
+    var sc = e.target.closest("[data-scope]");
+    if (sc) { state.scope = sc.getAttribute("data-scope"); refreshPeriod(); }
+  });
+  main.addEventListener("keydown", function (e) {
+    var row = e.target.closest && e.target.closest(".tl-row");
+    if (!row || (e.key !== "ArrowDown" && e.key !== "ArrowUp")) return;
+    e.preventDefault();
+    var i = +row.getAttribute("data-idx") + (e.key === "ArrowDown" ? 1 : -1);
+    if (i >= 0 && i < currentRows.length) selectRow(currentRows[i].key, true);
+  });
+  main.addEventListener("mouseover", function (e) {
+    var b = e.target.closest && e.target.closest(".bars .b");
+    var tip = document.getElementById("barsTip");
+    if (b && tip) tip.textContent = b.getAttribute("data-tip");
+  });
+
+  function route() {
+    var h = decodeURIComponent((location.hash || "").replace(/^#/, ""));
+    var r = byRoot[h] || bySession[h] || byRoot[focusId] || roots[0];
+    if (!r) return;
+    var changed = state.root !== r;
+    state.root = r;
+    if (changed) {
+      openMap["r:" + r.cl.rkey] = true;
+      openMap["p:" + r.cl.pkey] = true;
+      saveOpen();
+    }
+    if (bySession[h] && !byRoot[h]) state.sel = "s:" + h;
+    else if (changed) state.sel = null;
+    render();
+    if (changed) window.scrollTo(0, 0);
+    closeNav();
+  }
+
+  function closeNav() {
+    document.body.classList.remove("nav-open");
+    document.getElementById("navToggle").setAttribute("aria-expanded", "false");
+  }
+  document.getElementById("navToggle").addEventListener("click", function () {
+    var open = !document.body.classList.contains("nav-open");
+    document.body.classList.toggle("nav-open", open);
+    this.setAttribute("aria-expanded", String(open));
+    if (open) filterEl.focus();
+  });
+  document.getElementById("backdrop").addEventListener("click", closeNav);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeNav(); });
+  slist.addEventListener("click", function (e) {
+    var h = e.target.closest(".ag-head");
+    if (h) { toggleAg(h); if (!querying()) saveOpen(); return; }
+    if (e.target.closest("[data-clear]")) { clearFilters(); return; }
+    var a = e.target.closest("a.sitem");
+    if (a && a.getAttribute("href") === location.hash) closeNav();
+  });
+  filterEl.addEventListener("input", function () {
+    var was = querying();
+    state.filter = filterEl.value;
+    if (was !== querying()) qOpen = {};
+    filtersChanged();
+  });
+  document.getElementById("stateSeg").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-st]");
+    if (b) { state.st = b.getAttribute("data-st"); filtersChanged(); }
+  });
+  document.getElementById("rootChips").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-rf]");
+    if (b) setFolderFilter(b.getAttribute("data-rf"), state.pf);
+  });
+  document.getElementById("projSel").addEventListener("change", function () { setFolderFilter(state.rf, this.value); });
+  document.getElementById("expandAll").addEventListener("click", function () { setAll(true); });
+  document.getElementById("collapseAll").addEventListener("click", function () { setAll(false); });
+  function clearFilters() {
+    filterEl.value = "";
+    state.filter = "";
+    state.st = "all";
+    qOpen = {};
+    setFolderFilter("", "");
+  }
+  document.getElementById("clearF").addEventListener("click", clearFilters);
+  document.getElementById("headlessT").addEventListener("change", function () {
+    state.headless = this.checked;
+    try { localStorage.setItem("agent-cost-show-headless", state.headless ? "1" : "0"); } catch (e) {}
+    filtersChanged();
+  });
+
+  function setupTheme() {
+    var btn = document.getElementById("themeToggle");
+    var root = document.documentElement;
+    var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+    var saved = null;
+    try { saved = localStorage.getItem("agent-cost-theme"); } catch (e) {}
+    if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+    function isDark() {
+      var t = root.getAttribute("data-theme");
+      return t ? t === "dark" : !!(mq && mq.matches);
+    }
+    function paint() {
+      var d = isDark();
+      btn.innerHTML = d ? ICON.sun : ICON.moon;
+      btn.setAttribute("aria-label", d ? "Switch to light theme" : "Switch to dark theme");
+      btn.title = btn.getAttribute("aria-label");
+    }
+    btn.addEventListener("click", function () {
+      var next = isDark() ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("agent-cost-theme", next); } catch (e) {}
+      paint();
+    });
+    if (mq && mq.addEventListener) mq.addEventListener("change", paint);
+    paint();
+  }
+
+  function reload(data) {
+    var prev = state.root && state.root.id;
+    var sy = window.scrollY, ss = slist.scrollTop;
+    var tls = document.querySelector(".tl-scroll"), tlx = tls ? tls.scrollLeft : 0;
+    var ae = document.activeElement;
+    var akey = ae && ae.classList && ae.classList.contains("tl-row") ? ae.getAttribute("data-key") : null;
+    if (!load(data)) { state.root = null; return; }
+    var h = decodeURIComponent((location.hash || "").replace(/^#/, ""));
+    var r = (prev && (byRoot[prev] || bySession[prev])) || byRoot[h] || bySession[h] || byRoot[focusId] || roots[0];
+    if (!r) return;
+    var moved = state.root && r.id !== prev;
+    state.root = r;
+    if (moved && prev && bySession[prev] && !byRoot[prev]) state.sel = state.sel || "s:" + prev;
+    render();
+    window.scrollTo(0, sy);
+    slist.scrollTop = ss;
+    tls = document.querySelector(".tl-scroll");
+    if (tls) tls.scrollLeft = tlx;
+    if (akey) {
+      var el = main.querySelector('.tl-row[data-key="' + (window.CSS && CSS.escape ? CSS.escape(akey) : akey) + '"]');
+      if (el) el.focus({ preventScroll: true });
+    }
+  }
+
+  var liveVersion = null, liveTimer = null, liveBusy = false, liveAt = null;
+  var tsfmt = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  function setLive(ok) {
+    var ind = document.getElementById("liveInd");
+    ind.hidden = false;
+    ind.classList.toggle("off", !ok);
+    document.getElementById("liveTxt").textContent = ok ? "live · updated " + tsfmt.format(liveAt || Date.now()) : "offline";
+    ind.title = ok ? "Updates by itself when the data changes" : "The agent-cost server is not reachable; run agent-cost serve";
+  }
+  function getJSON(url) {
+    return fetch(url, { cache: "no-store" }).then(function (res) {
+      if (!res.ok) throw new Error(url + " " + res.status);
+      return res.json();
+    });
+  }
+  var rawRoots = null;
+  function merge(data) {
+    if (!data.incremental || !rawRoots) rawRoots = {};
+    (data.roots || []).forEach(function (x) { rawRoots[x.root_session_id] = x; });
+    (data.removed || []).forEach(function (id) { delete rawRoots[id]; });
+    return { generated_at: data.generated_at, focus_root_session_id: data.focus_root_session_id, project_roots: data.project_roots,
+      visible_roots: data.visible_roots, roots: Object.keys(rawRoots).map(function (k) { return rawRoots[k]; }) };
+  }
+  function fetchData(first) {
+    var url = first || !liveVersion || !rawRoots ? "/api/data" : "/api/data?since=" + encodeURIComponent(liveVersion);
+    return getJSON(url).then(function (data) {
+      var changed = !data.incremental || (data.roots || []).length || (data.removed || []).length;
+      var merged = merge(data);
+      liveVersion = data.version || null;
+      liveAt = Date.now();
+      if (first) { if (load(merged)) route(); } else if (changed) reload(merged);
+      setLive(true);
+    });
+  }
+  function schedule(ms) {
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(poll, ms == null ? 3000 : ms);
+  }
+  function poll() {
+    if (document.hidden) return;
+    if (liveBusy) return schedule();
+    liveBusy = true;
+    var first = !roots.length;
+    getJSON("/api/version").then(function (v) {
+      if (first || v.version !== liveVersion) return fetchData(first);
+      setLive(true);
+    }).catch(function () { setLive(false); }).then(function () { liveBusy = false; schedule(); });
+  }
+
+  setupTheme();
+  window.addEventListener("hashchange", route);
+  if (LIVE) {
+    main.innerHTML = '<div class="empty card">Loading…</div>';
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) schedule(0); });
+    liveBusy = true;
+    fetchData(true).catch(function () { showEmpty(); setLive(false); }).then(function () { liveBusy = false; schedule(); });
+  } else if (load(DATA)) {
+    route();
+  }
+})();
+</script>
+</body>
+</html>

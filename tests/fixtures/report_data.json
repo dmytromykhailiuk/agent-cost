@@ -1,0 +1,2403 @@
+{
+ "generated_at": "2026-11-14T13:24:00Z",
+ "focus_root_session_id": "275f9bbd-bd76-44dd-b8a4-94036e0c59b1",
+ "project_roots": [
+  {
+   "name": "projects",
+   "path": "/Users/x/projects"
+  },
+  {
+   "name": "npm-packages",
+   "path": "/Users/x/Desktop/npm-packages"
+  }
+ ],
+ "visible_roots": [
+  "/Users/x/Desktop"
+ ],
+ "roots": [
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "275f9bbd-bd76-44dd-b8a4-94036e0c59b1",
+   "totals": {
+    "cost_usd": 10.9355,
+    "own_cost_usd": 4.0065,
+    "agents_cost_usd": 6.929,
+    "sessions": 6,
+    "builtin_agents": 2,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 58951,
+      "output": 172660,
+      "cache_read": 14425602,
+      "cache_write_5m": 234937,
+      "cache_write_1h": 184439,
+      "cost_usd": 9.2243
+     },
+     "claude-haiku-5-5": {
+      "input": 2571,
+      "output": 8024,
+      "cache_read": 783887,
+      "cache_write_5m": 14747,
+      "cache_write_1h": 8816,
+      "cost_usd": 0.0157
+     },
+     "claude-sonnet-5-5": {
+      "input": 14515,
+      "output": 57913,
+      "cache_read": 5395278,
+      "cache_write_5m": 78422,
+      "cache_write_1h": 58758,
+      "cost_usd": 1.5788
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "275f9bbd-bd76-44dd-b8a4-94036e0c59b1",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-14T12:10:00Z",
+     "last_activity_at": "2026-11-14T13:23:54Z",
+     "ended_at": null,
+     "duration_s": 4440,
+     "state": "live",
+     "task": {
+      "description": "agent-cost: plan and build the cost-tracking plugin",
+      "prompt_excerpt": "Хочу бачити загальну вартість дерева агентів (main + вбудовані + herdr сабагенти) у статус-барі, плюс JSON на кожну сесію і HTML-звіт через скіл."
+     },
+     "result_excerpt": null,
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/275f9bbd-bd76-44dd-b8a4-94036e0c59b1.jsonl",
+     "cost": {
+      "effective_usd": 4.0065,
+      "reported_usd": 4.0065,
+      "reported_source": "statusline",
+      "estimated_usd": 3.8898,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 23351,
+        "output": 73243,
+        "cache_read": 6223296,
+        "cache_write_5m": 115294,
+        "cache_write_1h": 61837,
+        "cost_usd": 3.8741
+       },
+       "claude-haiku-5-5": {
+        "input": 549,
+        "output": 1789,
+        "cache_read": 159544,
+        "cache_write_5m": 6374,
+        "cache_write_1h": 3020,
+        "cost_usd": 0.0039
+       }
+      }
+     },
+     "subtree_cost_usd": 10.9355,
+     "builtin_agents": [
+      {
+       "agent_type": "Explore",
+       "description": "Find statusline entry points",
+       "prompt_excerpt": "Find where dashboard.js builds the cost segment and the profile label. Report file:line for each and how stdin JSON is parsed.",
+       "result_excerpt": "dashboard.js:112 builds `[personal]` from CLAUDE_CONFIG_DIR; :130 prints `$${cost.total_cost_usd.toFixed(2)}`. stdin is read once via fs.readFileSync(0).",
+       "model": "claude-haiku-5-5",
+       "effort": null,
+       "started_at": "2026-11-14T12:13:00Z",
+       "ended_at": "2026-11-14T12:15:24Z",
+       "duration_s": 144,
+       "cost_usd": 0.0118,
+       "by_model": {
+        "claude-haiku-5-5": {
+         "input": 2022,
+         "output": 6235,
+         "cache_read": 624343,
+         "cache_write_5m": 8373,
+         "cache_write_1h": 5796,
+         "cost_usd": 0.0118
+        }
+       },
+       "included_in_parent": true
+      }
+     ]
+    },
+    {
+     "session_id": "a13b442e-e3a5-4a6e-a273-4f466b7b07c3",
+     "kind": "herdr",
+     "parent_session_id": "275f9bbd-bd76-44dd-b8a4-94036e0c59b1",
+     "depth": 1,
+     "herdr_id": "241e1d",
+     "role": "explore",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-14T12:16:00Z",
+     "last_activity_at": "2026-11-14T12:24:30Z",
+     "ended_at": "2026-11-14T12:24:35Z",
+     "duration_s": 515,
+     "state": "ended",
+     "task": {
+      "description": "Map herdr-agent lifecycle and env vars",
+      "prompt_excerpt": "Read the herdr-agents plugin. Which env vars does a child session get (HERDR_*), when is $TMPDIR/herdr-agents/<id>/ deleted, and what is in meta.json?"
+     },
+     "result_excerpt": "Child gets HERDR_AGENT_DIR, HERDR_AGENT_ID, HERDR_AGENT_DEPTH, HERDR_PARENT_SESSION_ID, HERDR_ROOT_SESSION_ID. The dir is removed in `finish()` right after the result file is read (herdr-agent:418). meta.json: role, model, effort, parent, created_at.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/a13b442e-e3a5-4a6e-a273-4f466b7b07c3.jsonl",
+     "cost": {
+      "effective_usd": 0.465,
+      "reported_usd": 0.46,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.465,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 4574,
+        "output": 18519,
+        "cache_read": 1755201,
+        "cache_write_5m": 21859,
+        "cache_write_1h": 10118,
+        "cost_usd": 0.465
+       }
+      }
+     },
+     "subtree_cost_usd": 0.465,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "39cba66c-25f7-4c1b-90dc-c44e43ca95e3",
+     "kind": "herdr",
+     "parent_session_id": "275f9bbd-bd76-44dd-b8a4-94036e0c59b1",
+     "depth": 1,
+     "herdr_id": "2e0faa",
+     "role": "plan",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-14T12:25:00Z",
+     "last_activity_at": "2026-11-14T12:46:00Z",
+     "ended_at": "2026-11-14T12:46:04Z",
+     "duration_s": 1264,
+     "state": "ended",
+     "task": {
+      "description": "Design storage schema and hook flow",
+      "prompt_excerpt": "Design the state layout for agent-cost: per-session files written by hooks, a live file written by the statusline, and a rebuilt roots/<root>.json. No double counting of built-in agents."
+     },
+     "result_excerpt": "Plan: sessions/<root>/<sid>.json (hooks) + <sid>.live.json (statusline), roots/<root>.json rebuilt atomically. effective = max(reported, estimated); built-ins flagged included_in_parent so the total sums Claude sessions only.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/39cba66c-25f7-4c1b-90dc-c44e43ca95e3.jsonl",
+     "cost": {
+      "effective_usd": 1.884,
+      "reported_usd": 1.8487,
+      "reported_source": "cost-state",
+      "estimated_usd": 1.884,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 13322,
+        "output": 23910,
+        "cache_read": 2806076,
+        "cache_write_5m": 42754,
+        "cache_write_1h": 46345,
+        "cost_usd": 1.6772
+       }
+      }
+     },
+     "subtree_cost_usd": 2.5787,
+     "builtin_agents": [
+      {
+       "agent_type": "general-purpose",
+       "description": "Check cost-state semantics",
+       "prompt_excerpt": "Does cost-state in a transcript include built-in subagent usage? Grep a few recent transcripts and compare with subagents/*.jsonl totals.",
+       "result_excerpt": "Yes — cost-state.total_cost_usd already includes built-in subagents and hidden calls (checked 3 transcripts, diff < 0.5%).",
+       "model": "claude-sonnet-5-5",
+       "effort": "medium",
+       "started_at": "2026-11-14T12:37:00Z",
+       "ended_at": "2026-11-14T12:40:06Z",
+       "duration_s": 186,
+       "cost_usd": 0.2068,
+       "by_model": {
+        "claude-sonnet-5-5": {
+         "input": 2240,
+         "output": 7896,
+         "cache_read": 758499,
+         "cache_write_5m": 11337,
+         "cache_write_1h": 4786,
+         "cost_usd": 0.2068
+        }
+       },
+       "included_in_parent": true
+      }
+     ]
+    },
+    {
+     "session_id": "c344d632-9b07-40d6-9a7c-bec29d7456c2",
+     "kind": "herdr",
+     "parent_session_id": "39cba66c-25f7-4c1b-90dc-c44e43ca95e3",
+     "depth": 2,
+     "herdr_id": "5cb9f2",
+     "role": "explore",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-opus-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-14T12:29:00Z",
+     "last_activity_at": "2026-11-14T12:36:12Z",
+     "ended_at": "2026-11-14T12:36:15Z",
+     "duration_s": 435,
+     "state": "ended",
+     "task": {
+      "description": "Find transcript pricing code in agent-verify-loop",
+      "prompt_excerpt": "In agent-verify-loop, locate the pricing table loader, resolve_model and per-request cost. Give exact line ranges to copy."
+     },
+     "result_excerpt": "vlooplib/metrics.py:141-183 (load_pricing, resolve_model, request_cost); vlooplib/transcripts/claude.py:17-100 parses usage incl. cache_creation.ephemeral_5m/1h.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/c344d632-9b07-40d6-9a7c-bec29d7456c2.jsonl",
+     "cost": {
+      "effective_usd": 0.6947,
+      "reported_usd": 0.677,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.6947,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 2287,
+        "output": 10948,
+        "cache_read": 1014915,
+        "cache_write_5m": 19238,
+        "cache_write_1h": 20925,
+        "cost_usd": 0.6947
+       }
+      }
+     },
+     "subtree_cost_usd": 0.6947,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "fb6a680b-a29f-48f7-832a-1fabb1b4ab1e",
+     "kind": "herdr",
+     "parent_session_id": "275f9bbd-bd76-44dd-b8a4-94036e0c59b1",
+     "depth": 1,
+     "herdr_id": "bf6e32",
+     "role": "implement",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-14T12:54:00Z",
+     "last_activity_at": "2026-11-14T13:23:22Z",
+     "ended_at": null,
+     "duration_s": 1800,
+     "state": "live",
+     "task": {
+      "description": "Scaffold repo, manifests and core.py",
+      "prompt_excerpt": "Create the agent-cost repo next to agent-vault: plugin.json, marketplace.json, hooks.json, bin stub, pricing.json copy, core.py (state dir, atomic JSON)."
+     },
+     "result_excerpt": null,
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/fb6a680b-a29f-48f7-832a-1fabb1b4ab1e.jsonl",
+     "cost": {
+      "effective_usd": 2.9783,
+      "reported_usd": 2.8739,
+      "reported_source": "statusline",
+      "estimated_usd": 2.9783,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 19991,
+        "output": 64559,
+        "cache_read": 4381315,
+        "cache_write_5m": 57651,
+        "cache_write_1h": 55332,
+        "cost_usd": 2.9783
+       }
+      }
+     },
+     "subtree_cost_usd": 2.9783,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "a9af57f1-3212-499a-b0fa-407eaca68b41",
+     "kind": "herdr",
+     "parent_session_id": "275f9bbd-bd76-44dd-b8a4-94036e0c59b1",
+     "depth": 1,
+     "herdr_id": "073afa",
+     "role": "design",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-14T13:02:00Z",
+     "last_activity_at": "2026-11-14T13:23:26Z",
+     "ended_at": null,
+     "duration_s": 1320,
+     "state": "live",
+     "task": {
+      "description": "Report page mockup (E0)",
+      "prompt_excerpt": "Design the HTML report page as a self-contained mockup on fixture data: timeline, agent panel, per-model breakdown, session list, period totals."
+     },
+     "result_excerpt": null,
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/a9af57f1-3212-499a-b0fa-407eaca68b41.jsonl",
+     "cost": {
+      "effective_usd": 0.907,
+      "reported_usd": 0.8872,
+      "reported_source": "statusline",
+      "estimated_usd": 0.907,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 7701,
+        "output": 31498,
+        "cache_read": 2881578,
+        "cache_write_5m": 45226,
+        "cache_write_1h": 43854,
+        "cost_usd": 0.907
+       }
+      }
+     },
+     "subtree_cost_usd": 0.907,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "c995950c-b311-4319-92e7-8ca2d31dcedc",
+   "totals": {
+    "cost_usd": 3.3856,
+    "own_cost_usd": 3.3718,
+    "agents_cost_usd": 0.0138,
+    "sessions": 2,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 12377,
+      "output": 64072,
+      "cache_read": 5342069,
+      "cache_write_5m": 136903,
+      "cache_write_1h": 35555,
+      "cost_usd": 3.3683
+     },
+     "claude-haiku-5-5": {
+      "input": 4142,
+      "output": 6926,
+      "cache_read": 908703,
+      "cache_write_5m": 11970,
+      "cache_write_1h": 14498,
+      "cost_usd": 0.0173
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "c995950c-b311-4319-92e7-8ca2d31dcedc",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-14T07:38:04Z",
+     "last_activity_at": "2026-11-14T08:30:04Z",
+     "ended_at": "2026-11-14T08:30:18Z",
+     "duration_s": 3134,
+     "state": "ended",
+     "task": {
+      "description": "Fix retry-request backoff jitter",
+      "prompt_excerpt": "retry-request: jitter sometimes exceeds maxDelay. Find why and fix with a test."
+     },
+     "result_excerpt": "Fixed: jitter is now applied before clamping to maxDelay (src/backoff.ts:41). Added 2 tests; all 58 pass.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/c995950c-b311-4319-92e7-8ca2d31dcedc.jsonl",
+     "cost": {
+      "effective_usd": 3.3718,
+      "reported_usd": 3.2718,
+      "reported_source": "cost-state",
+      "estimated_usd": 3.3718,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 12377,
+        "output": 64072,
+        "cache_read": 5342069,
+        "cache_write_5m": 136903,
+        "cache_write_1h": 35555,
+        "cost_usd": 3.3683
+       },
+       "claude-haiku-5-5": {
+        "input": 710,
+        "output": 1283,
+        "cache_read": 195395,
+        "cache_write_5m": 2718,
+        "cache_write_1h": 2584,
+        "cost_usd": 0.0035
+       }
+      }
+     },
+     "subtree_cost_usd": 3.3856,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "bd829300-34c0-418e-84cc-77e7258170af",
+     "kind": "herdr",
+     "parent_session_id": "c995950c-b311-4319-92e7-8ca2d31dcedc",
+     "depth": 1,
+     "herdr_id": "2b386e",
+     "role": "explore",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-haiku-5-5",
+     "effort": "low",
+     "started_at": "2026-11-14T07:42:04Z",
+     "last_activity_at": "2026-11-14T07:47:04Z",
+     "ended_at": "2026-11-14T07:47:18Z",
+     "duration_s": 314,
+     "state": "ended",
+     "task": {
+      "description": "Locate backoff computation",
+      "prompt_excerpt": "Where is the delay for attempt N computed in retry-request?"
+     },
+     "result_excerpt": "src/backoff.ts:30-48 computeDelay(); jitter added after Math.min(maxDelay, …).",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/bd829300-34c0-418e-84cc-77e7258170af.jsonl",
+     "cost": {
+      "effective_usd": 0.0138,
+      "reported_usd": 0.0136,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.0138,
+      "by_model": {
+       "claude-haiku-5-5": {
+        "input": 3432,
+        "output": 5643,
+        "cache_read": 713308,
+        "cache_write_5m": 9252,
+        "cache_write_1h": 11914,
+        "cost_usd": 0.0138
+       }
+      }
+     },
+     "subtree_cost_usd": 0.0138,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "ce6ac914-daa3-42a0-9d24-82a182031562",
+   "totals": {
+    "cost_usd": 14.8994,
+    "own_cost_usd": 8.8695,
+    "agents_cost_usd": 6.0299,
+    "sessions": 3,
+    "builtin_agents": 1,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 62718,
+      "output": 166806,
+      "cache_read": 20751775,
+      "cache_write_5m": 439483,
+      "cache_write_1h": 182353,
+      "cost_usd": 11.3936
+     },
+     "claude-haiku-5-5": {
+      "input": 4245,
+      "output": 12721,
+      "cache_read": 1059426,
+      "cache_write_5m": 23593,
+      "cache_write_1h": 17343,
+      "cost_usd": 0.0238
+     },
+     "claude-sonnet-5-5": {
+      "input": 17133,
+      "output": 121724,
+      "cache_read": 11639100,
+      "cache_write_5m": 275836,
+      "cache_write_1h": 94254,
+      "cost_usd": 3.482
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "ce6ac914-daa3-42a0-9d24-82a182031562",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/pdf-creator",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-14T09:12:15Z",
+     "last_activity_at": "2026-11-14T11:50:15Z",
+     "ended_at": null,
+     "duration_s": 9480,
+     "state": "idle",
+     "task": {
+      "description": "Table pagination across pages",
+      "prompt_excerpt": "Tables longer than one page lose the header row on page 2+. Repeat headers and keep rows unsplit."
+     },
+     "result_excerpt": "Headers now repeat via TableLayout.repeatHeader; rows are kept together unless taller than a page. Waiting for your review of the snapshot diffs.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-pdf-creator/ce6ac914-daa3-42a0-9d24-82a182031562.jsonl",
+     "cost": {
+      "effective_usd": 8.8695,
+      "reported_usd": null,
+      "reported_source": null,
+      "estimated_usd": 8.8695,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 53612,
+        "output": 119755,
+        "cache_read": 16913073,
+        "cache_write_5m": 358646,
+        "cache_write_1h": 132536,
+        "cost_usd": 8.8457
+       },
+       "claude-haiku-5-5": {
+        "input": 2199,
+        "output": 3143,
+        "cache_read": 618506,
+        "cache_write_5m": 5011,
+        "cache_write_1h": 5072,
+        "cost_usd": 0.0096
+       }
+      }
+     },
+     "subtree_cost_usd": 14.8994,
+     "builtin_agents": [
+      {
+       "agent_type": "Explore",
+       "description": "Find table layout code",
+       "prompt_excerpt": "Find where tables are split across pages in pdf-creator.",
+       "result_excerpt": "src/layout/table.ts:88 splitRows(); header rendered once in renderTable():140.",
+       "model": "claude-haiku-5-5",
+       "effort": null,
+       "started_at": "2026-11-14T09:18:15Z",
+       "ended_at": "2026-11-14T09:21:45Z",
+       "duration_s": 210,
+       "cost_usd": 0.0142,
+       "by_model": {
+        "claude-haiku-5-5": {
+         "input": 2046,
+         "output": 9578,
+         "cache_read": 440920,
+         "cache_write_5m": 18582,
+         "cache_write_1h": 12271,
+         "cost_usd": 0.0142
+        }
+       },
+       "included_in_parent": true
+      }
+     ]
+    },
+    {
+     "session_id": "16b0c26d-93e6-46e8-8e5e-edc94ae282ba",
+     "kind": "herdr",
+     "parent_session_id": "ce6ac914-daa3-42a0-9d24-82a182031562",
+     "depth": 1,
+     "herdr_id": "6ed9ba",
+     "role": "implement",
+     "cwd": "/Users/x/projects/pdf-creator",
+     "model": "claude-sonnet-5-5",
+     "effort": "high",
+     "started_at": "2026-11-14T09:32:15Z",
+     "last_activity_at": "2026-11-14T10:36:15Z",
+     "ended_at": "2026-11-14T10:36:25Z",
+     "duration_s": 3850,
+     "state": "ended",
+     "task": {
+      "description": "Implement repeated headers",
+      "prompt_excerpt": "Implement header repetition in TableLayout per the plan; update snapshots."
+     },
+     "result_excerpt": "Implemented repeatHeader + keepTogether; 14 snapshots updated, typecheck clean.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-pdf-creator/16b0c26d-93e6-46e8-8e5e-edc94ae282ba.jsonl",
+     "cost": {
+      "effective_usd": 3.482,
+      "reported_usd": 3.4278,
+      "reported_source": "cost-state",
+      "estimated_usd": 3.482,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 17133,
+        "output": 121724,
+        "cache_read": 11639100,
+        "cache_write_5m": 275836,
+        "cache_write_1h": 94254,
+        "cost_usd": 3.482
+       }
+      }
+     },
+     "subtree_cost_usd": 3.482,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "82de3382-9122-4ebb-b5a0-59ca01dde4f1",
+     "kind": "herdr",
+     "parent_session_id": "ce6ac914-daa3-42a0-9d24-82a182031562",
+     "depth": 1,
+     "herdr_id": "45092a",
+     "role": "review",
+     "cwd": "/Users/x/projects/pdf-creator",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-14T10:42:15Z",
+     "last_activity_at": "2026-11-14T11:04:15Z",
+     "ended_at": "2026-11-14T11:04:23Z",
+     "duration_s": 1328,
+     "state": "ended",
+     "task": {
+      "description": "Review table pagination change",
+      "prompt_excerpt": "Review the diff for correctness, Result usage and snapshot sanity."
+     },
+     "result_excerpt": "1 blocking: splitRows ignores rowSpan>1 at the page boundary. 2 suggestions on naming.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-pdf-creator/82de3382-9122-4ebb-b5a0-59ca01dde4f1.jsonl",
+     "cost": {
+      "effective_usd": 2.5479,
+      "reported_usd": 2.5214,
+      "reported_source": "cost-state",
+      "estimated_usd": 2.5479,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 9106,
+        "output": 47051,
+        "cache_read": 3838702,
+        "cache_write_5m": 80837,
+        "cache_write_1h": 49817,
+        "cost_usd": 2.5479
+       }
+      }
+     },
+     "subtree_cost_usd": 2.5479,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "2cd8a1a2-c386-4705-a9e0-24ea4a4226fd",
+   "totals": {
+    "cost_usd": 9.4815,
+    "own_cost_usd": 4.7015,
+    "agents_cost_usd": 4.78,
+    "sessions": 4,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 31661,
+      "output": 120973,
+      "cache_read": 8697084,
+      "cache_write_5m": 141820,
+      "cache_write_1h": 141437,
+      "cost_usd": 6.1261
+     },
+     "claude-haiku-5-5": {
+      "input": 1028,
+      "output": 3170,
+      "cache_read": 219944,
+      "cache_write_5m": 3078,
+      "cache_write_1h": 2688,
+      "cost_usd": 0.0048
+     },
+     "claude-sonnet-5-5": {
+      "input": 35689,
+      "output": 115557,
+      "cache_read": 10870872,
+      "cache_write_5m": 178599,
+      "cache_write_1h": 147495,
+      "cost_usd": 3.3506
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "2cd8a1a2-c386-4705-a9e0-24ea4a4226fd",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/pdf-creator",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-13T13:05:35Z",
+     "last_activity_at": "2026-11-13T14:41:35Z",
+     "ended_at": "2026-11-13T14:41:42Z",
+     "duration_s": 5767,
+     "state": "ended",
+     "task": {
+      "description": "Font subsetting for Cyrillic",
+      "prompt_excerpt": "Embedded fonts bloat PDFs to 4 MB. Subset fonts to used glyphs, keep Cyrillic working."
+     },
+     "result_excerpt": "Subsetting via fontkit createSubset; average PDF 4.1 MB → 310 KB. Cyrillic verified in 3 fixtures.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-pdf-creator/2cd8a1a2-c386-4705-a9e0-24ea4a4226fd.jsonl",
+     "cost": {
+      "effective_usd": 4.7015,
+      "reported_usd": 4.6351,
+      "reported_source": "cost-state",
+      "estimated_usd": 4.7015,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 24171,
+        "output": 96494,
+        "cache_read": 6814935,
+        "cache_write_5m": 105936,
+        "cache_write_1h": 97183,
+        "cost_usd": 4.6967
+       },
+       "claude-haiku-5-5": {
+        "input": 1028,
+        "output": 3170,
+        "cache_read": 219944,
+        "cache_write_5m": 3078,
+        "cache_write_1h": 2688,
+        "cost_usd": 0.0048
+       }
+      }
+     },
+     "subtree_cost_usd": 9.4815,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "934dd9ee-c0aa-43eb-a02d-a00367e802e7",
+     "kind": "herdr",
+     "parent_session_id": "2cd8a1a2-c386-4705-a9e0-24ea4a4226fd",
+     "depth": 1,
+     "herdr_id": "9fdbd1",
+     "role": "explore",
+     "cwd": "/Users/x/projects/pdf-creator",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-13T13:08:35Z",
+     "last_activity_at": "2026-11-13T13:17:35Z",
+     "ended_at": "2026-11-13T13:17:38Z",
+     "duration_s": 543,
+     "state": "ended",
+     "task": {
+      "description": "Survey font embedding",
+      "prompt_excerpt": "How are fonts embedded today and which library parses them?"
+     },
+     "result_excerpt": "pdf-lib embedFont with full TTF; fontkit already a dependency.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-pdf-creator/934dd9ee-c0aa-43eb-a02d-a00367e802e7.jsonl",
+     "cost": {
+      "effective_usd": 0.435,
+      "reported_usd": 0.4259,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.435,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 5288,
+        "output": 14902,
+        "cache_read": 1212881,
+        "cache_write_5m": 37100,
+        "cache_write_1h": 15332,
+        "cost_usd": 0.435
+       }
+      }
+     },
+     "subtree_cost_usd": 0.435,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "92617249-64c0-4d17-b782-bceba734741c",
+     "kind": "herdr",
+     "parent_session_id": "2cd8a1a2-c386-4705-a9e0-24ea4a4226fd",
+     "depth": 1,
+     "herdr_id": "2b52c7",
+     "role": "implement",
+     "cwd": "/Users/x/projects/pdf-creator",
+     "model": "claude-sonnet-5-5",
+     "effort": "high",
+     "started_at": "2026-11-13T13:20:35Z",
+     "last_activity_at": "2026-11-13T14:08:35Z",
+     "ended_at": "2026-11-13T14:08:49Z",
+     "duration_s": 2894,
+     "state": "ended",
+     "task": {
+      "description": "Implement subsetting",
+      "prompt_excerpt": "Implement glyph subsetting per the plan."
+     },
+     "result_excerpt": "Done; added FontRegistry.collectGlyphs().",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-pdf-creator/92617249-64c0-4d17-b782-bceba734741c.jsonl",
+     "cost": {
+      "effective_usd": 2.9156,
+      "reported_usd": 2.8721,
+      "reported_source": "cost-state",
+      "estimated_usd": 2.9156,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 30401,
+        "output": 100655,
+        "cache_read": 9657991,
+        "cache_write_5m": 141499,
+        "cache_write_1h": 132163,
+        "cost_usd": 2.9156
+       }
+      }
+     },
+     "subtree_cost_usd": 2.9156,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "60687534-7072-496a-a8d3-fde4be6a9bb5",
+     "kind": "herdr",
+     "parent_session_id": "2cd8a1a2-c386-4705-a9e0-24ea4a4226fd",
+     "depth": 1,
+     "herdr_id": "b21bd2",
+     "role": "review",
+     "cwd": "/Users/x/projects/pdf-creator",
+     "model": "claude-opus-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-13T14:11:35Z",
+     "last_activity_at": "2026-11-13T14:28:35Z",
+     "ended_at": "2026-11-13T14:28:51Z",
+     "duration_s": 1036,
+     "state": "ended",
+     "task": {
+      "description": "Review subsetting",
+      "prompt_excerpt": "Review the subsetting diff."
+     },
+     "result_excerpt": "Pass. Suggest caching subsets per document.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-pdf-creator/60687534-7072-496a-a8d3-fde4be6a9bb5.jsonl",
+     "cost": {
+      "effective_usd": 1.4294,
+      "reported_usd": 1.4134,
+      "reported_source": "cost-state",
+      "estimated_usd": 1.4294,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 7490,
+        "output": 24479,
+        "cache_read": 1882149,
+        "cache_write_5m": 35884,
+        "cache_write_1h": 44254,
+        "cost_usd": 1.4294
+       }
+      }
+     },
+     "subtree_cost_usd": 1.4294,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "91113796-0bab-4656-9d2f-e1cb01c20414",
+   "totals": {
+    "cost_usd": 1.0131,
+    "own_cost_usd": 1.0131,
+    "agents_cost_usd": 0.0,
+    "sessions": 1,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-sonnet-5-5": {
+      "input": 9198,
+      "output": 30756,
+      "cache_read": 4271829,
+      "cache_write_5m": 51375,
+      "cache_write_1h": 32511,
+      "cost_usd": 1.0116
+     },
+     "claude-haiku-5-5": {
+      "input": 397,
+      "output": 700,
+      "cache_read": 71393,
+      "cache_write_5m": 2105,
+      "cache_write_1h": 726,
+      "cost_usd": 0.0015
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "91113796-0bab-4656-9d2f-e1cb01c20414",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-12T08:50:37Z",
+     "last_activity_at": "2026-11-12T09:24:37Z",
+     "ended_at": "2026-11-12T09:24:41Z",
+     "duration_s": 2044,
+     "state": "ended",
+     "task": {
+      "description": "Bump dependencies and fix lint",
+      "prompt_excerpt": "Update eslint and typescript, fix the new lint errors."
+     },
+     "result_excerpt": "Updated; 23 lint fixes, no behavior change.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/91113796-0bab-4656-9d2f-e1cb01c20414.jsonl",
+     "cost": {
+      "effective_usd": 1.0131,
+      "reported_usd": 1.0019,
+      "reported_source": "cost-state",
+      "estimated_usd": 1.0131,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 9198,
+        "output": 30756,
+        "cache_read": 4271829,
+        "cache_write_5m": 51375,
+        "cache_write_1h": 32511,
+        "cost_usd": 1.0116
+       },
+       "claude-haiku-5-5": {
+        "input": 397,
+        "output": 700,
+        "cache_read": 71393,
+        "cache_write_5m": 2105,
+        "cache_write_1h": 726,
+        "cost_usd": 0.0015
+       }
+      }
+     },
+     "subtree_cost_usd": 1.0131,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "f0abf283-c6c3-4ce4-a973-58fc430174ed",
+   "totals": {
+    "cost_usd": 4.1651,
+    "own_cost_usd": 3.6413,
+    "agents_cost_usd": 0.5238,
+    "sessions": 2,
+    "builtin_agents": 1,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 11935,
+      "output": 64426,
+      "cache_read": 4398981,
+      "cache_write_5m": 116259,
+      "cache_write_1h": 103842,
+      "cost_usd": 3.6281
+     },
+     "claude-haiku-5-5": {
+      "input": 2320,
+      "output": 8157,
+      "cache_read": 585361,
+      "cache_write_5m": 13392,
+      "cache_write_1h": 6996,
+      "cost_usd": 0.0132
+     },
+     "claude-sonnet-5-5": {
+      "input": 3343,
+      "output": 23070,
+      "cache_read": 1073385,
+      "cache_write_5m": 37807,
+      "cache_write_1h": 21133,
+      "cost_usd": 0.5238
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "f0abf283-c6c3-4ce4-a973-58fc430174ed",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Desktop/npm-packages/agent-vault",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-11T16:20:59Z",
+     "last_activity_at": "2026-11-11T17:31:59Z",
+     "ended_at": "2026-11-11T17:32:13Z",
+     "duration_s": 4274,
+     "state": "ended",
+     "task": {
+      "description": "Vault search ranking",
+      "prompt_excerpt": "vault search returns stale notes first. Rank by title match, then recency."
+     },
+     "result_excerpt": "New scoring: title 3x, heading 2x, recency decay 30d. Added ranking tests.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages-agent-vault/f0abf283-c6c3-4ce4-a973-58fc430174ed.jsonl",
+     "cost": {
+      "effective_usd": 3.6413,
+      "reported_usd": 3.5598,
+      "reported_source": "cost-state",
+      "estimated_usd": 3.6413,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 11935,
+        "output": 64426,
+        "cache_read": 4398981,
+        "cache_write_5m": 116259,
+        "cache_write_1h": 103842,
+        "cost_usd": 3.6281
+       },
+       "claude-haiku-5-5": {
+        "input": 556,
+        "output": 2762,
+        "cache_read": 202714,
+        "cache_write_5m": 5255,
+        "cache_write_1h": 4139,
+        "cost_usd": 0.0049
+       }
+      }
+     },
+     "subtree_cost_usd": 4.1651,
+     "builtin_agents": [
+      {
+       "agent_type": "Explore",
+       "description": "Find search impl",
+       "prompt_excerpt": "Where is vault search scoring?",
+       "result_excerpt": "vaultlib/search.py:55 score_note().",
+       "model": "claude-haiku-5-5",
+       "effort": null,
+       "started_at": "2026-11-11T16:22:59Z",
+       "ended_at": "2026-11-11T16:24:59Z",
+       "duration_s": 120,
+       "cost_usd": 0.0083,
+       "by_model": {
+        "claude-haiku-5-5": {
+         "input": 1764,
+         "output": 5395,
+         "cache_read": 382647,
+         "cache_write_5m": 8137,
+         "cache_write_1h": 2857,
+         "cost_usd": 0.0083
+        }
+       },
+       "included_in_parent": true
+      }
+     ]
+    },
+    {
+     "session_id": "15686259-c0b0-4a33-a253-709d2599ed9e",
+     "kind": "herdr",
+     "parent_session_id": "f0abf283-c6c3-4ce4-a973-58fc430174ed",
+     "depth": 1,
+     "herdr_id": "330026",
+     "role": "explore",
+     "cwd": "/Users/x/Desktop/npm-packages/agent-vault",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-11T16:25:59Z",
+     "last_activity_at": "2026-11-11T16:36:59Z",
+     "ended_at": "2026-11-11T16:37:08Z",
+     "duration_s": 669,
+     "state": "ended",
+     "task": {
+      "description": "Collect bad search examples",
+      "prompt_excerpt": "Run vault search for 10 common queries and list where the best note ranks."
+     },
+     "result_excerpt": "Best note ranked #1 in 4/10, median rank 3.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages-agent-vault/15686259-c0b0-4a33-a253-709d2599ed9e.jsonl",
+     "cost": {
+      "effective_usd": 0.5238,
+      "reported_usd": 0.5142,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.5238,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 3343,
+        "output": 23070,
+        "cache_read": 1073385,
+        "cache_write_5m": 37807,
+        "cache_write_1h": 21133,
+        "cost_usd": 0.5238
+       }
+      }
+     },
+     "subtree_cost_usd": 0.5238,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "175348d4-50e1-414b-a53d-3a7f6857a070",
+   "totals": {
+    "cost_usd": 1.9451,
+    "own_cost_usd": 1.9451,
+    "agents_cost_usd": 0.0,
+    "sessions": 1,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 12672,
+      "output": 37523,
+      "cache_read": 3269762,
+      "cache_write_5m": 56299,
+      "cache_write_1h": 25726,
+      "cost_usd": 1.9424
+     },
+     "claude-haiku-5-5": {
+      "input": 289,
+      "output": 809,
+      "cache_read": 160670,
+      "cache_write_5m": 2272,
+      "cache_write_1h": 2044,
+      "cost_usd": 0.0027
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "175348d4-50e1-414b-a53d-3a7f6857a070",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Desktop/npm-packages/typed-local-storage",
+     "model": "claude-opus-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-09T10:02:30Z",
+     "last_activity_at": "2026-11-09T10:42:30Z",
+     "ended_at": "2026-11-09T10:42:49Z",
+     "duration_s": 2419,
+     "state": "ended",
+     "task": {
+      "description": "typed-local-storage docs refresh",
+      "prompt_excerpt": "Refresh the docs page examples for v2 API."
+     },
+     "result_excerpt": "Docs updated; 6 examples rewritten.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages-typed-local-storage/175348d4-50e1-414b-a53d-3a7f6857a070.jsonl",
+     "cost": {
+      "effective_usd": 1.9451,
+      "reported_usd": 1.91,
+      "reported_source": "cost-state",
+      "estimated_usd": 1.9451,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 12672,
+        "output": 37523,
+        "cache_read": 3269762,
+        "cache_write_5m": 56299,
+        "cache_write_1h": 25726,
+        "cost_usd": 1.9424
+       },
+       "claude-haiku-5-5": {
+        "input": 289,
+        "output": 809,
+        "cache_read": 160670,
+        "cache_write_5m": 2272,
+        "cache_write_1h": 2044,
+        "cost_usd": 0.0027
+       }
+      }
+     },
+     "subtree_cost_usd": 1.9451,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "589a7aac-f0ab-4d36-b4a1-eb1775270c93",
+   "totals": {
+    "cost_usd": 10.1174,
+    "own_cost_usd": 7.599,
+    "agents_cost_usd": 2.5184,
+    "sessions": 4,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 28330,
+      "output": 149841,
+      "cache_read": 12191944,
+      "cache_write_5m": 277477,
+      "cache_write_1h": 81763,
+      "cost_usd": 7.59
+     },
+     "claude-haiku-5-5": {
+      "input": 3400,
+      "output": 11144,
+      "cache_read": 957429,
+      "cache_write_5m": 24634,
+      "cache_write_1h": 9289,
+      "cost_usd": 0.0204
+     },
+     "claude-sonnet-5-5": {
+      "input": 21334,
+      "output": 84666,
+      "cache_read": 8511788,
+      "cache_write_5m": 170221,
+      "cache_write_1h": 85228,
+      "cost_usd": 2.507
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "589a7aac-f0ab-4d36-b4a1-eb1775270c93",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-06T14:30:32Z",
+     "last_activity_at": "2026-11-06T16:30:32Z",
+     "ended_at": "2026-11-06T16:30:52Z",
+     "duration_s": 7220,
+     "state": "ended",
+     "task": {
+      "description": "Inspector: flaky e2e on upload",
+      "prompt_excerpt": "The upload e2e test fails ~1 in 5 runs on CI. Find the cause."
+     },
+     "result_excerpt": "Race between presigned URL expiry and retry; fixed by refreshing URL on 403. 50/50 green runs.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/589a7aac-f0ab-4d36-b4a1-eb1775270c93.jsonl",
+     "cost": {
+      "effective_usd": 7.599,
+      "reported_usd": 7.4949,
+      "reported_source": "cost-state",
+      "estimated_usd": 7.599,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 28330,
+        "output": 149841,
+        "cache_read": 12191944,
+        "cache_write_5m": 277477,
+        "cache_write_1h": 81763,
+        "cost_usd": 7.59
+       },
+       "claude-haiku-5-5": {
+        "input": 1546,
+        "output": 4067,
+        "cache_read": 480421,
+        "cache_write_5m": 7924,
+        "cache_write_1h": 5315,
+        "cost_usd": 0.009
+       }
+      }
+     },
+     "subtree_cost_usd": 10.1174,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "b4a49c68-af62-483b-b8e5-38cc4c307a9a",
+     "kind": "herdr",
+     "parent_session_id": "589a7aac-f0ab-4d36-b4a1-eb1775270c93",
+     "depth": 1,
+     "herdr_id": "943fe1",
+     "role": "explore",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-06T14:35:32Z",
+     "last_activity_at": "2026-11-06T14:49:32Z",
+     "ended_at": "2026-11-06T14:49:50Z",
+     "duration_s": 858,
+     "state": "ended",
+     "task": {
+      "description": "Collect CI failure logs",
+      "prompt_excerpt": "Pull the last 20 CI runs and group the failures."
+     },
+     "result_excerpt": "All 7 failures: 403 on PUT after retry.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/b4a49c68-af62-483b-b8e5-38cc4c307a9a.jsonl",
+     "cost": {
+      "effective_usd": 0.7086,
+      "reported_usd": 0.6934,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.7086,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 8582,
+        "output": 20662,
+        "cache_read": 2623223,
+        "cache_write_5m": 35384,
+        "cache_write_1h": 33509,
+        "cost_usd": 0.7086
+       }
+      }
+     },
+     "subtree_cost_usd": 0.7086,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "2bb83ec8-d182-4075-8592-2f911c9387cc",
+     "kind": "herdr",
+     "parent_session_id": "589a7aac-f0ab-4d36-b4a1-eb1775270c93",
+     "depth": 1,
+     "herdr_id": "10b9fc",
+     "role": "qa",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-06T15:50:32Z",
+     "last_activity_at": "2026-11-06T16:20:32Z",
+     "ended_at": "2026-11-06T16:20:44Z",
+     "duration_s": 1812,
+     "state": "ended",
+     "task": {
+      "description": "Rerun e2e 50 times",
+      "prompt_excerpt": "Run the upload e2e 50 times with the fix."
+     },
+     "result_excerpt": "50/50 passed, p95 4.2s.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/2bb83ec8-d182-4075-8592-2f911c9387cc.jsonl",
+     "cost": {
+      "effective_usd": 1.7984,
+      "reported_usd": 1.7567,
+      "reported_source": "cost-state",
+      "estimated_usd": 1.7984,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 12752,
+        "output": 64004,
+        "cache_read": 5888565,
+        "cache_write_5m": 134837,
+        "cache_write_1h": 51719,
+        "cost_usd": 1.7984
+       }
+      }
+     },
+     "subtree_cost_usd": 1.8098,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "5ea7736d-4383-48d3-843a-6a92baa4d93b",
+     "kind": "herdr",
+     "parent_session_id": "2bb83ec8-d182-4075-8592-2f911c9387cc",
+     "depth": 2,
+     "herdr_id": "4d1cb2",
+     "role": "explore",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-haiku-5-5",
+     "effort": "low",
+     "started_at": "2026-11-06T15:53:32Z",
+     "last_activity_at": "2026-11-06T15:57:32Z",
+     "ended_at": "2026-11-06T15:57:45Z",
+     "duration_s": 253,
+     "state": "ended",
+     "task": {
+      "description": "Find e2e runner flags",
+      "prompt_excerpt": "How to repeat a single playwright test N times?"
+     },
+     "result_excerpt": "--repeat-each=50 --workers=4",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/5ea7736d-4383-48d3-843a-6a92baa4d93b.jsonl",
+     "cost": {
+      "effective_usd": 0.0114,
+      "reported_usd": 0.0113,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.0114,
+      "by_model": {
+       "claude-haiku-5-5": {
+        "input": 1854,
+        "output": 7077,
+        "cache_read": 477008,
+        "cache_write_5m": 16710,
+        "cache_write_1h": 3974,
+        "cost_usd": 0.0114
+       }
+      }
+     },
+     "subtree_cost_usd": 0.0114,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "dff81697-ac31-4a9b-b362-c32e1a1c2393",
+   "totals": {
+    "cost_usd": 2.3212,
+    "own_cost_usd": 2.3212,
+    "agents_cost_usd": 0.0,
+    "sessions": 1,
+    "builtin_agents": 1,
+    "by_model": {
+     "claude-sonnet-5-5": {
+      "input": 18108,
+      "output": 90016,
+      "cache_read": 6569008,
+      "cache_write_5m": 110182,
+      "cache_write_1h": 112156,
+      "cost_usd": 2.3174
+     },
+     "claude-haiku-5-5": {
+      "input": 414,
+      "output": 1750,
+      "cache_read": 184721,
+      "cache_write_5m": 3625,
+      "cache_write_1h": 2812,
+      "cost_usd": 0.0038
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "dff81697-ac31-4a9b-b362-c32e1a1c2393",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/pdf-creator",
+     "model": "claude-sonnet-5-5",
+     "effort": "high",
+     "started_at": "2026-11-02T09:00:48Z",
+     "last_activity_at": "2026-11-02T10:05:48Z",
+     "ended_at": "2026-11-02T10:06:06Z",
+     "duration_s": 3918,
+     "state": "ended",
+     "task": {
+      "description": "Add watermark option",
+      "prompt_excerpt": "Add an optional diagonal watermark to every page."
+     },
+     "result_excerpt": "watermark option added with opacity/angle; 3 tests.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-pdf-creator/dff81697-ac31-4a9b-b362-c32e1a1c2393.jsonl",
+     "cost": {
+      "effective_usd": 2.3212,
+      "reported_usd": 2.2825,
+      "reported_source": "cost-state",
+      "estimated_usd": 2.3212,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 15571,
+        "output": 82488,
+        "cache_read": 5447485,
+        "cache_write_5m": 78052,
+        "cache_write_1h": 102468,
+        "cost_usd": 2.0058
+       },
+       "claude-haiku-5-5": {
+        "input": 414,
+        "output": 1750,
+        "cache_read": 184721,
+        "cache_write_5m": 3625,
+        "cache_write_1h": 2812,
+        "cost_usd": 0.0038
+       }
+      }
+     },
+     "subtree_cost_usd": 2.3212,
+     "builtin_agents": [
+      {
+       "agent_type": "general-purpose",
+       "description": "Check pdf-lib rotation API",
+       "prompt_excerpt": "How to draw rotated text in pdf-lib?",
+       "result_excerpt": "page.drawText with rotate: degrees(45).",
+       "model": "claude-sonnet-5-5",
+       "effort": null,
+       "started_at": "2026-11-02T09:10:48Z",
+       "ended_at": "2026-11-02T09:16:48Z",
+       "duration_s": 360,
+       "cost_usd": 0.3116,
+       "by_model": {
+        "claude-sonnet-5-5": {
+         "input": 2537,
+         "output": 7528,
+         "cache_read": 1121523,
+         "cache_write_5m": 32130,
+         "cache_write_1h": 9688,
+         "cost_usd": 0.3116
+        }
+       },
+       "included_in_parent": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "6bad0923-9660-4595-bca7-9922b0134b9d",
+   "totals": {
+    "cost_usd": 8.1987,
+    "own_cost_usd": 5.1178,
+    "agents_cost_usd": 3.0809,
+    "sessions": 2,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 35837,
+      "output": 147147,
+      "cache_read": 10792023,
+      "cache_write_5m": 264828,
+      "cache_write_1h": 203141,
+      "cost_usd": 8.1939
+     },
+     "claude-haiku-5-5": {
+      "input": 807,
+      "output": 3053,
+      "cache_read": 206247,
+      "cache_write_5m": 3941,
+      "cache_write_1h": 3209,
+      "cost_usd": 0.0048
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "6bad0923-9660-4595-bca7-9922b0134b9d",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Desktop/npm-packages/agent-vault",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-10-28T11:45:08Z",
+     "last_activity_at": "2026-10-28T13:13:08Z",
+     "ended_at": "2026-10-28T13:13:14Z",
+     "duration_s": 5286,
+     "state": "ended",
+     "task": {
+      "description": "vault graph view",
+      "prompt_excerpt": "Add `vault graph` that opens an interactive graph of notes."
+     },
+     "result_excerpt": "Self-contained HTML with force layout; opens in browser.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages-agent-vault/6bad0923-9660-4595-bca7-9922b0134b9d.jsonl",
+     "cost": {
+      "effective_usd": 5.1178,
+      "reported_usd": 4.9718,
+      "reported_source": "cost-state",
+      "estimated_usd": 5.1178,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 15806,
+        "output": 90821,
+        "cache_read": 5123246,
+        "cache_write_5m": 193372,
+        "cache_write_1h": 155235,
+        "cost_usd": 5.113
+       },
+       "claude-haiku-5-5": {
+        "input": 807,
+        "output": 3053,
+        "cache_read": 206247,
+        "cache_write_5m": 3941,
+        "cache_write_1h": 3209,
+        "cost_usd": 0.0048
+       }
+      }
+     },
+     "subtree_cost_usd": 8.1987,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "86468f7d-c780-4242-a053-1ac3abae20e6",
+     "kind": "herdr",
+     "parent_session_id": "6bad0923-9660-4595-bca7-9922b0134b9d",
+     "depth": 1,
+     "herdr_id": "c58430",
+     "role": "design",
+     "cwd": "/Users/x/Desktop/npm-packages/agent-vault",
+     "model": "claude-opus-5-5",
+     "effort": "medium",
+     "started_at": "2026-10-28T11:55:08Z",
+     "last_activity_at": "2026-10-28T12:30:08Z",
+     "ended_at": "2026-10-28T12:30:21Z",
+     "duration_s": 2113,
+     "state": "ended",
+     "task": {
+      "description": "Graph page design",
+      "prompt_excerpt": "Design the graph page."
+     },
+     "result_excerpt": "Approved design: force graph + side panel.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages-agent-vault/86468f7d-c780-4242-a053-1ac3abae20e6.jsonl",
+     "cost": {
+      "effective_usd": 3.0809,
+      "reported_usd": 3.0091,
+      "reported_source": "cost-state",
+      "estimated_usd": 3.0809,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 20031,
+        "output": 56326,
+        "cache_read": 5668777,
+        "cache_write_5m": 71456,
+        "cache_write_1h": 47906,
+        "cost_usd": 3.0809
+       }
+      }
+     },
+     "subtree_cost_usd": 3.0809,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "627fa68a-ddad-4471-b8e6-b7f81e143a3f",
+   "totals": {
+    "cost_usd": 0.025,
+    "own_cost_usd": 0.025,
+    "agents_cost_usd": 0.0,
+    "sessions": 1,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-haiku-5-5": {
+      "input": 4918,
+      "output": 11172,
+      "cache_read": 1316193,
+      "cache_write_5m": 14057,
+      "cache_write_1h": 19656,
+      "cost_usd": 0.025
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "627fa68a-ddad-4471-b8e6-b7f81e143a3f",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Desktop/npm-packages",
+     "model": "claude-haiku-5-5",
+     "effort": "low",
+     "started_at": "2026-10-23T15:10:31Z",
+     "last_activity_at": "2026-10-23T15:22:31Z",
+     "ended_at": "2026-10-23T15:22:38Z",
+     "duration_s": 727,
+     "state": "ended",
+     "task": {
+      "description": "Publish typed-error-execution 1.4.1",
+      "prompt_excerpt": "Bump patch version and publish."
+     },
+     "result_excerpt": "Published 1.4.1.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages/627fa68a-ddad-4471-b8e6-b7f81e143a3f.jsonl",
+     "cost": {
+      "effective_usd": 0.025,
+      "reported_usd": 0.0246,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.025,
+      "by_model": {
+       "claude-haiku-5-5": {
+        "input": 4918,
+        "output": 11172,
+        "cache_read": 1316193,
+        "cache_write_5m": 14057,
+        "cache_write_1h": 19656,
+        "cost_usd": 0.025
+       }
+      }
+     },
+     "subtree_cost_usd": 0.025,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "a92b6d51-258e-458b-bd3b-8469323c39a5",
+   "totals": {
+    "cost_usd": 12.1583,
+    "own_cost_usd": 7.3535,
+    "agents_cost_usd": 4.8048,
+    "sessions": 3,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 48579,
+      "output": 132389,
+      "cache_read": 13279059,
+      "cache_write_5m": 282499,
+      "cache_write_1h": 280885,
+      "cost_usd": 9.1575
+     },
+     "claude-haiku-5-5": {
+      "input": 849,
+      "output": 4423,
+      "cache_read": 288642,
+      "cache_write_5m": 6789,
+      "cache_write_1h": 4624,
+      "cost_usd": 0.007
+     },
+     "claude-sonnet-5-5": {
+      "input": 33341,
+      "output": 77446,
+      "cache_read": 11626798,
+      "cache_write_5m": 141212,
+      "cache_write_1h": 159240,
+      "cost_usd": 2.9938
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "a92b6d51-258e-458b-bd3b-8469323c39a5",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-10-18T10:20:01Z",
+     "last_activity_at": "2026-10-18T12:40:01Z",
+     "ended_at": "2026-10-18T12:40:09Z",
+     "duration_s": 8408,
+     "state": "ended",
+     "task": {
+      "description": "Inspector: migrate to new auth",
+      "prompt_excerpt": "Migrate the inspector API client to the new OAuth flow."
+     },
+     "result_excerpt": "Migrated; token refresh covered by tests.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/a92b6d51-258e-458b-bd3b-8469323c39a5.jsonl",
+     "cost": {
+      "effective_usd": 7.3535,
+      "reported_usd": 7.1626,
+      "reported_source": "cost-state",
+      "estimated_usd": 7.3535,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 39696,
+        "output": 107907,
+        "cache_read": 10641038,
+        "cache_write_5m": 193595,
+        "cache_write_1h": 241671,
+        "cost_usd": 7.3465
+       },
+       "claude-haiku-5-5": {
+        "input": 849,
+        "output": 4423,
+        "cache_read": 288642,
+        "cache_write_5m": 6789,
+        "cache_write_1h": 4624,
+        "cost_usd": 0.007
+       }
+      }
+     },
+     "subtree_cost_usd": 12.1583,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "59c930e1-f144-4534-b009-7153830bc1a6",
+     "kind": "herdr",
+     "parent_session_id": "a92b6d51-258e-458b-bd3b-8469323c39a5",
+     "depth": 1,
+     "herdr_id": "87a18f",
+     "role": "plan",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-10-18T10:24:01Z",
+     "last_activity_at": "2026-10-18T10:49:01Z",
+     "ended_at": "2026-10-18T10:49:19Z",
+     "duration_s": 1518,
+     "state": "ended",
+     "task": {
+      "description": "Migration plan",
+      "prompt_excerpt": "Plan the auth migration."
+     },
+     "result_excerpt": "5-step plan, feature-flagged.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/59c930e1-f144-4534-b009-7153830bc1a6.jsonl",
+     "cost": {
+      "effective_usd": 1.811,
+      "reported_usd": 1.7924,
+      "reported_source": "cost-state",
+      "estimated_usd": 1.811,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 8883,
+        "output": 24482,
+        "cache_read": 2638021,
+        "cache_write_5m": 88904,
+        "cache_write_1h": 39214,
+        "cost_usd": 1.811
+       }
+      }
+     },
+     "subtree_cost_usd": 1.811,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "9dc8bf9c-2385-4cba-b76a-b5c407b552d4",
+     "kind": "herdr",
+     "parent_session_id": "a92b6d51-258e-458b-bd3b-8469323c39a5",
+     "depth": 1,
+     "herdr_id": "5a2452",
+     "role": "implement",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-sonnet-5-5",
+     "effort": "high",
+     "started_at": "2026-10-18T10:52:01Z",
+     "last_activity_at": "2026-10-18T12:12:01Z",
+     "ended_at": "2026-10-18T12:12:14Z",
+     "duration_s": 4813,
+     "state": "ended",
+     "task": {
+      "description": "Implement migration",
+      "prompt_excerpt": "Implement steps 1–5."
+     },
+     "result_excerpt": "Done, 41 files changed.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/9dc8bf9c-2385-4cba-b76a-b5c407b552d4.jsonl",
+     "cost": {
+      "effective_usd": 2.9938,
+      "reported_usd": 2.9189,
+      "reported_source": "cost-state",
+      "estimated_usd": 2.9938,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 33341,
+        "output": 77446,
+        "cache_read": 11626798,
+        "cache_write_5m": 141212,
+        "cache_write_1h": 159240,
+        "cost_usd": 2.9938
+       }
+      }
+     },
+     "subtree_cost_usd": 2.9938,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "ef366521-b8e0-4d10-bb54-5e26c60c2379",
+   "totals": {
+    "cost_usd": 0.6415,
+    "own_cost_usd": 0.6301,
+    "agents_cost_usd": 0.0114,
+    "sessions": 2,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-sonnet-5-5": {
+      "input": 11098,
+      "output": 21073,
+      "cache_read": 1699866,
+      "cache_write_5m": 55760,
+      "cache_write_1h": 21458,
+      "cost_usd": 0.6281
+     },
+     "claude-haiku-5-5": {
+      "input": 2578,
+      "output": 6334,
+      "cache_read": 684763,
+      "cache_write_5m": 14310,
+      "cache_write_1h": 6868,
+      "cost_usd": 0.0134
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "ef366521-b8e0-4d10-bb54-5e26c60c2379",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Desktop/npm-packages/agent-cost",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-14T12:57:00Z",
+     "last_activity_at": "2026-11-14T13:23:54Z",
+     "ended_at": null,
+     "duration_s": 1620,
+     "state": "live",
+     "task": {
+      "description": "Statusline: compact cost segment",
+      "prompt_excerpt": "Statusline segment is too wide in narrow terminals. Add a compact form: `$12.40 tree`."
+     },
+     "result_excerpt": null,
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages-agent-cost/ef366521-b8e0-4d10-bb54-5e26c60c2379.jsonl",
+     "cost": {
+      "effective_usd": 0.6301,
+      "reported_usd": 0.6248,
+      "reported_source": "statusline",
+      "estimated_usd": 0.6301,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 11098,
+        "output": 21073,
+        "cache_read": 1699866,
+        "cache_write_5m": 55760,
+        "cache_write_1h": 21458,
+        "cost_usd": 0.6281
+       },
+       "claude-haiku-5-5": {
+        "input": 218,
+        "output": 1138,
+        "cache_read": 106996,
+        "cache_write_5m": 1034,
+        "cache_write_1h": 1146,
+        "cost_usd": 0.002
+       }
+      }
+     },
+     "subtree_cost_usd": 0.6415,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "8a540e65-cc48-425f-82c6-053ef2704c80",
+     "kind": "herdr",
+     "parent_session_id": "ef366521-b8e0-4d10-bb54-5e26c60c2379",
+     "depth": 1,
+     "herdr_id": "74fb92",
+     "role": "explore",
+     "cwd": "/Users/x/Desktop/npm-packages/agent-cost",
+     "model": "claude-haiku-5-5",
+     "effort": "low",
+     "started_at": "2026-11-14T12:59:00Z",
+     "last_activity_at": "2026-11-14T13:03:00Z",
+     "ended_at": "2026-11-14T13:03:10Z",
+     "duration_s": 250,
+     "state": "ended",
+     "task": {
+      "description": "Find statusline width handling",
+      "prompt_excerpt": "Where does the statusline read COLUMNS?"
+     },
+     "result_excerpt": "costlib/statusline.py:58 render(); no width check yet.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages-agent-cost/8a540e65-cc48-425f-82c6-053ef2704c80.jsonl",
+     "cost": {
+      "effective_usd": 0.0114,
+      "reported_usd": 0.0112,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.0114,
+      "by_model": {
+       "claude-haiku-5-5": {
+        "input": 2360,
+        "output": 5196,
+        "cache_read": 577767,
+        "cache_write_5m": 13276,
+        "cache_write_1h": 5722,
+        "cost_usd": 0.0114
+       }
+      }
+     },
+     "subtree_cost_usd": 0.0114,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "6910e2e0-826e-4c4d-8c5b-06ad3ae814a1",
+   "totals": {
+    "cost_usd": 2.2892,
+    "own_cost_usd": 2.2892,
+    "agents_cost_usd": 0.0,
+    "sessions": 1,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 17325,
+      "output": 35299,
+      "cache_read": 3062990,
+      "cache_write_5m": 59848,
+      "cache_write_1h": 74889,
+      "cost_usd": 2.2862
+     },
+     "claude-haiku-5-5": {
+      "input": 412,
+      "output": 943,
+      "cache_read": 164525,
+      "cache_write_5m": 3753,
+      "cache_write_1h": 2011,
+      "cost_usd": 0.003
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "6910e2e0-826e-4c4d-8c5b-06ad3ae814a1",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Desktop/npm-packages/agent-cost",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-13T17:40:28Z",
+     "last_activity_at": "2026-11-13T18:26:28Z",
+     "ended_at": "2026-11-13T18:26:44Z",
+     "duration_s": 2776,
+     "state": "ended",
+     "task": {
+      "description": "Pricing table refresh and cache-write tiers",
+      "prompt_excerpt": "Update pricing.json for the 5.5 models and split cache writes into 5m/1h."
+     },
+     "result_excerpt": "pricing.json updated; 4 tests adjusted.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Desktop-npm-packages-agent-cost/6910e2e0-826e-4c4d-8c5b-06ad3ae814a1.jsonl",
+     "cost": {
+      "effective_usd": 2.2892,
+      "reported_usd": 2.2508,
+      "reported_source": "cost-state",
+      "estimated_usd": 2.2892,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 17325,
+        "output": 35299,
+        "cache_read": 3062990,
+        "cache_write_5m": 59848,
+        "cache_write_1h": 74889,
+        "cost_usd": 2.2862
+       },
+       "claude-haiku-5-5": {
+        "input": 412,
+        "output": 943,
+        "cache_read": 164525,
+        "cache_write_5m": 3753,
+        "cache_write_1h": 2011,
+        "cost_usd": 0.003
+       }
+      }
+     },
+     "subtree_cost_usd": 2.2892,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "f6cd7a59-c471-4b89-bb51-b353b3561add",
+   "totals": {
+    "cost_usd": 3.9759,
+    "own_cost_usd": 3.5037,
+    "agents_cost_usd": 0.4722,
+    "sessions": 2,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 16515,
+      "output": 77240,
+      "cache_read": 3874901,
+      "cache_write_5m": 132858,
+      "cache_write_1h": 56352,
+      "cost_usd": 3.5009
+     },
+     "claude-haiku-5-5": {
+      "input": 549,
+      "output": 1256,
+      "cache_read": 154349,
+      "cache_write_5m": 1956,
+      "cache_write_1h": 1761,
+      "cost_usd": 0.0028
+     },
+     "claude-sonnet-5-5": {
+      "input": 4826,
+      "output": 15669,
+      "cache_read": 1679267,
+      "cache_write_5m": 40587,
+      "cache_write_1h": 9113,
+      "cost_usd": 0.4722
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "f6cd7a59-c471-4b89-bb51-b353b3561add",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/ravin-api",
+     "model": "claude-opus-5-5",
+     "effort": "high",
+     "started_at": "2026-11-14T10:05:50Z",
+     "last_activity_at": "2026-11-14T11:08:50Z",
+     "ended_at": null,
+     "duration_s": 3780,
+     "state": "idle",
+     "task": {
+      "description": "Rate limit /v2/reports",
+      "prompt_excerpt": "Add per-tenant rate limiting to /v2/reports (100 req/min), return 429 with Retry-After."
+     },
+     "result_excerpt": "Token bucket middleware added behind a flag. Waiting for your call on Redis vs in-memory store.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-ravin-api/f6cd7a59-c471-4b89-bb51-b353b3561add.jsonl",
+     "cost": {
+      "effective_usd": 3.5037,
+      "reported_usd": null,
+      "reported_source": null,
+      "estimated_usd": 3.5037,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 16515,
+        "output": 77240,
+        "cache_read": 3874901,
+        "cache_write_5m": 132858,
+        "cache_write_1h": 56352,
+        "cost_usd": 3.5009
+       },
+       "claude-haiku-5-5": {
+        "input": 549,
+        "output": 1256,
+        "cache_read": 154349,
+        "cache_write_5m": 1956,
+        "cache_write_1h": 1761,
+        "cost_usd": 0.0028
+       }
+      }
+     },
+     "subtree_cost_usd": 3.9759,
+     "builtin_agents": []
+    },
+    {
+     "session_id": "bca7916e-ac63-4869-821b-e2507534f0ba",
+     "kind": "herdr",
+     "parent_session_id": "f6cd7a59-c471-4b89-bb51-b353b3561add",
+     "depth": 1,
+     "herdr_id": "245aab",
+     "role": "explore",
+     "cwd": "/Users/x/projects/ravin-api",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-14T10:09:50Z",
+     "last_activity_at": "2026-11-14T10:19:50Z",
+     "ended_at": "2026-11-14T10:20:03Z",
+     "duration_s": 613,
+     "state": "ended",
+     "task": {
+      "description": "Find existing middleware chain",
+      "prompt_excerpt": "Where are API middlewares registered?"
+     },
+     "result_excerpt": "src/http/app.ts:40 registerMiddlewares().",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-ravin-api/bca7916e-ac63-4869-821b-e2507534f0ba.jsonl",
+     "cost": {
+      "effective_usd": 0.4722,
+      "reported_usd": 0.4598,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.4722,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 4826,
+        "output": 15669,
+        "cache_read": 1679267,
+        "cache_write_5m": 40587,
+        "cache_write_1h": 9113,
+        "cost_usd": 0.4722
+       }
+      }
+     },
+     "subtree_cost_usd": 0.4722,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "71908c6c-9534-4208-8645-52db51ee1edf",
+   "totals": {
+    "cost_usd": 0.9377,
+    "own_cost_usd": 0.9377,
+    "agents_cost_usd": 0.0,
+    "sessions": 1,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-sonnet-5-5": {
+      "input": 6737,
+      "output": 24285,
+      "cache_read": 2636402,
+      "cache_write_5m": 97784,
+      "cache_write_1h": 42775,
+      "cost_usd": 0.9355
+     },
+     "claude-haiku-5-5": {
+      "input": 229,
+      "output": 1532,
+      "cache_read": 98661,
+      "cache_write_5m": 1239,
+      "cache_write_1h": 1546,
+      "cost_usd": 0.0022
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "71908c6c-9534-4208-8645-52db51ee1edf",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/ravin-api",
+     "model": "claude-sonnet-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-10T11:30:54Z",
+     "last_activity_at": "2026-11-10T12:08:54Z",
+     "ended_at": "2026-11-10T12:09:10Z",
+     "duration_s": 2296,
+     "state": "ended",
+     "task": {
+      "description": "Fix N+1 in reports listing",
+      "prompt_excerpt": "GET /v2/reports is slow for large tenants. Find and fix N+1 queries."
+     },
+     "result_excerpt": "Batched author lookup; p95 1.8s → 210ms.",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-ravin-api/71908c6c-9534-4208-8645-52db51ee1edf.jsonl",
+     "cost": {
+      "effective_usd": 0.9377,
+      "reported_usd": 0.9102,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.9377,
+      "by_model": {
+       "claude-sonnet-5-5": {
+        "input": 6737,
+        "output": 24285,
+        "cache_read": 2636402,
+        "cache_write_5m": 97784,
+        "cache_write_1h": 42775,
+        "cost_usd": 0.9355
+       },
+       "claude-haiku-5-5": {
+        "input": 229,
+        "output": 1532,
+        "cache_read": 98661,
+        "cache_write_5m": 1239,
+        "cache_write_1h": 1546,
+        "cost_usd": 0.0022
+       }
+      }
+     },
+     "subtree_cost_usd": 0.9377,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "f69e0999-5d3e-413f-a7f2-ebfd6071589a",
+   "totals": {
+    "cost_usd": 1.9923,
+    "own_cost_usd": 1.9923,
+    "agents_cost_usd": 0.0,
+    "sessions": 1,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-opus-5-5": {
+      "input": 8091,
+      "output": 36045,
+      "cache_read": 3090072,
+      "cache_write_5m": 42692,
+      "cache_write_1h": 50662,
+      "cost_usd": 1.99
+     },
+     "claude-haiku-5-5": {
+      "input": 536,
+      "output": 1042,
+      "cache_read": 101402,
+      "cache_write_5m": 3334,
+      "cache_write_1h": 1618,
+      "cost_usd": 0.0023
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "f69e0999-5d3e-413f-a7f2-ebfd6071589a",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/projects/inspector",
+     "model": "claude-opus-5-5",
+     "effort": "medium",
+     "started_at": "2026-11-14T12:43:00Z",
+     "last_activity_at": "2026-11-14T13:23:42Z",
+     "ended_at": null,
+     "duration_s": 2460,
+     "state": "live",
+     "task": {
+      "description": "Inspector: audit log date filter",
+      "prompt_excerpt": "Audit log date filter ignores the user's timezone. Fix and add tests."
+     },
+     "result_excerpt": null,
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-projects-inspector/f69e0999-5d3e-413f-a7f2-ebfd6071589a.jsonl",
+     "cost": {
+      "effective_usd": 1.9923,
+      "reported_usd": 1.9153,
+      "reported_source": "statusline",
+      "estimated_usd": 1.9923,
+      "by_model": {
+       "claude-opus-5-5": {
+        "input": 8091,
+        "output": 36045,
+        "cache_read": 3090072,
+        "cache_write_5m": 42692,
+        "cache_write_1h": 50662,
+        "cost_usd": 1.99
+       },
+       "claude-haiku-5-5": {
+        "input": 536,
+        "output": 1042,
+        "cache_read": 101402,
+        "cache_write_5m": 3334,
+        "cache_write_1h": 1618,
+        "cost_usd": 0.0023
+       }
+      }
+     },
+     "subtree_cost_usd": 1.9923,
+     "builtin_agents": []
+    }
+   ]
+  },
+  {
+   "schema": 1,
+   "generated_at": "2026-11-14T13:24:00Z",
+   "root_session_id": "0d33d6d5-5d19-4e83-a53e-ba14321da56b",
+   "totals": {
+    "cost_usd": 0.0435,
+    "own_cost_usd": 0.0435,
+    "agents_cost_usd": 0.0,
+    "sessions": 1,
+    "builtin_agents": 0,
+    "by_model": {
+     "claude-haiku-5-5": {
+      "input": 5007,
+      "output": 21763,
+      "cache_read": 2181296,
+      "cache_write_5m": 37361,
+      "cache_write_1h": 28403,
+      "cost_usd": 0.0435
+     }
+    }
+   },
+   "sessions": [
+    {
+     "session_id": "0d33d6d5-5d19-4e83-a53e-ba14321da56b",
+     "kind": "main",
+     "parent_session_id": null,
+     "depth": 0,
+     "herdr_id": null,
+     "role": "main",
+     "cwd": "/Users/x/Downloads/csv-cleanup",
+     "model": "claude-haiku-5-5",
+     "effort": "low",
+     "started_at": "2026-11-08T19:15:15Z",
+     "last_activity_at": "2026-11-08T19:33:15Z",
+     "ended_at": "2026-11-08T19:33:34Z",
+     "duration_s": 1099,
+     "state": "ended",
+     "task": {
+      "description": "Clean up exported CSV",
+      "prompt_excerpt": "Dedupe rows and normalize dates in export.csv."
+     },
+     "result_excerpt": "Wrote clean.csv (3,412 rows, 57 duplicates removed).",
+     "transcript_path": "/Users/x/.claude/projects/-Users-x-Downloads-csv-cleanup/0d33d6d5-5d19-4e83-a53e-ba14321da56b.jsonl",
+     "cost": {
+      "effective_usd": 0.0435,
+      "reported_usd": 0.0434,
+      "reported_source": "cost-state",
+      "estimated_usd": 0.0435,
+      "by_model": {
+       "claude-haiku-5-5": {
+        "input": 5007,
+        "output": 21763,
+        "cache_read": 2181296,
+        "cache_write_5m": 37361,
+        "cache_write_1h": 28403,
+        "cost_usd": 0.0435
+       }
+      }
+     },
+     "subtree_cost_usd": 0.0435,
+     "builtin_agents": []
+    }
+   ]
+  }
+ ]
+}
