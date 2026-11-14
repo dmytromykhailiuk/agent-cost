@@ -103,7 +103,16 @@ def _compute(payload, env):
     return {"is_child": is_child, "depth": ident.get("depth"), "role": role, "purpose": ident.get("purpose"),
             "herdr_id": ident.get("herdr_id"), "total": total, "self": self_cost,
             "agents_usd": agents_usd, "agents_count": agents_count, "started": started,
-            "duration": duration}
+            "duration": duration, "split": _split(duration, summary.get("active_s"), summary.get("waiting_s"))}
+
+
+def _split(duration, active, waiting):
+    active, waiting = _num(active), _num(waiting)
+    if duration is None or active is None:
+        return None
+    active = min(duration, max(0.0, active))
+    waiting = min(duration - active, max(0.0, waiting or 0.0))
+    return active, waiting, duration - active - waiting
 
 
 def _render(c):
@@ -114,6 +123,10 @@ def _render(c):
         when.append(f"{TEXT}{_fmt_start(c['started'])}{R}")
     if c["duration"] is not None:
         when.append(f"{TEXT}{_fmt_duration(c['duration'])}{R}")
+    if c.get("split"):
+        active, waiting, idle = c["split"]
+        pieces = [("act", active)] + ([("wait", waiting)] if waiting >= 1 else []) + [("idle", idle)]
+        when.append(" ".join(f"{DIM}{k}{R} {TEXT}{_fmt_duration(v)}{R}" for k, v in pieces))
     if when:
         parts.append(f"{DIM}session{R} " + sep.join(when))
     parts.append(f"{DIM}Σ{R} {TEXT}{_money(c['total'])}{R}")

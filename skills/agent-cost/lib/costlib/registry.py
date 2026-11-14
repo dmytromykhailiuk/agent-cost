@@ -181,14 +181,14 @@ def live_path(root, sid):
 def load_session(root, sid):
     if not (valid_sid(root) and valid_sid(sid)):
         return None
-    data = core.read_json(core.state_dir() / "sessions" / root / f"{sid}.json")
+    data = core.read_json(core.state_path() / "sessions" / root / f"{sid}.json")
     return data if isinstance(data, dict) else None
 
 
 def load_live(root, sid):
     if not (valid_sid(root) and valid_sid(sid)):
         return None
-    data = core.read_json(core.state_dir() / "sessions" / root / f"{sid}.live.json")
+    data = core.read_json(core.state_path() / "sessions" / root / f"{sid}.live.json")
     return data if isinstance(data, dict) else None
 
 
@@ -241,7 +241,7 @@ def save_session(record):
 
 
 def _index_dir():
-    return core.state_dir() / "index"
+    return core.state_path() / "index"
 
 
 def _index_put(sid, root):
@@ -257,28 +257,29 @@ def _index_put(sid, root):
         pass
 
 
-def find_root(sid):
+def find_root(sid, write_index=True):
     if not valid_sid(sid):
         return None
     try:
         root = (_index_dir() / sid).read_text(encoding="utf-8").strip()
-        if valid_sid(root) and (core.state_dir() / "sessions" / root / f"{sid}.json").is_file():
+        if valid_sid(root) and (core.state_path() / "sessions" / root / f"{sid}.json").is_file():
             return root
     except OSError:
         pass
-    base = core.state_dir() / "sessions"
+    base = core.state_path() / "sessions"
     hits = sorted(base.glob(f"*/{sid}.json"), key=lambda p: p.stat().st_mtime, reverse=True)
     if not hits:
         return None
     root = hits[0].parent.name
-    _index_put(sid, root)
+    if write_index:
+        _index_put(sid, root)
     return root
 
 
 def session_ids(root):
     if not valid_sid(root):
         return []
-    d = core.state_dir() / "sessions" / root
+    d = core.state_path() / "sessions" / root
     out = []
     for p in sorted(d.glob("*.json")):
         name = p.name

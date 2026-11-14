@@ -22,7 +22,8 @@ the main agent runs one command and relays only the URL. No sub-agent is needed.
 | no args, `serve`, `list`, a SID | Run the live page (below). With a SID, pass `--session <SID>` instead of the main session id. |
 | `report` | Static export: run `$AC report --session <MAIN SID>`; it writes an HTML file, opens it and prints its absolute path as the last line. Relay that path on its own line, full absolute path. |
 | `stop` | Run `$AC serve --stop` and say what it printed. |
-| `show [SID]`, `list --json` | For agents and debugging: run `$AC show [SID\|--latest] --json` or `$AC list --json` and use the output yourself; do not paste it to the user. |
+| `show [SID]`, `list --json` | For agents and debugging: run `$AC show [SID\|--latest] --json` or `$AC list --json` and use the output yourself; do not paste it to the user. Every session, built-in agent and the root totals carry `time: {wall_s, active_s, waiting_s, idle_s}` (`null` when unknown); waiting is time spent waiting on the session's own sub-agents. |
+| `export` | For other plugins: `$AC export --session <SID> [--since ISO] [--until ISO] --json` prints the session's own cost, tokens and wall/active/waiting/idle time and every descendant's (contract 1, read-only; unknown session exits 1). `$AC version --json` prints the contract number. |
 | `scan [--since 30d]` | Run `$AC scan`: backfills sessions from the transcript history. Say what it printed in one line. |
 | `doctor` | Run `$AC doctor` and show the output. |
 | `setup` | Run `$AC setup`: it prints the diff for `~/.claude/statusline/dashboard.js`. Show it. |
@@ -41,7 +42,10 @@ when the data changes. The server listens on 127.0.0.1 only and stops after 2 h 
 
 ## Status line segment
 
-`Σ $total · agents $X (n) · <start> · <duration>`. The total sums the whole agent tree (the session, built-in
+`session <start> · <duration> · act <active> wait <waiting> idle <idle> · Σ $total · agents $X (n)`. Active is the root
+session's working time (gaps between transcript records, minus waits for the user and any gap over 300 s), waiting is
+the rest of that time during which one of its sub-agents was running (shown only when non-zero), idle is what remains of
+the duration; updated when a turn stops. The total sums the whole agent tree (the session, built-in
 sub-agents and Herdr children recursively). A sub-agent session shows `[sub:<role> d<depth>]` next to the profile label and the session line shows
 `self $X` instead of `agents`.
 

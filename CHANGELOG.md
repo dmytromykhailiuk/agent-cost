@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- Time split everywhere: every session, built-in sub-agent and root total has `time: {wall_s, active_s, idle_s}`
+  (`wall = active + idle`). Active is the sum of gaps between transcript records, minus the wait before each real user
+  prompt and any gap over the idle threshold (300 s, `idle_gap_s` config or `$AGENT_COST_IDLE_GAP_S`). Shown in `show`,
+  `list` (ACTIVE/IDLE columns), the live page (agent panel, row tooltip, Time tile) and the status line (`active …`).
+- `agent-cost export --session <sid> [--since] [--until] --json` (contract 1): read-only JSON with the session's own
+  cost, tokens and time and every descendant's, for agent-verify-loop. `version --json` now prints
+  `{"name", "version", "contract"}`.
+- Built-in Agent-tool sub-agents get `purpose` and `run_id` from their prompt (vloop run path, vault `Operation:`) and
+  agent type, so a vault-keeper retro is `verify:retro` with its run id; sessions carry `run_id` too.
+- Fourth time category `waiting`: non-active time during which at least one descendant agent (Herdr, headless,
+  built-in, any depth) was running, merged so overlapping agents count once. `wall = active + waiting + idle` in
+  `show`, `list` (WAITING column), `roots/<sid>.json`, `export` (`waiting_ms`, contract 1 amendment), the live page and
+  the status line (`act … wait … idle …`). An orchestrator waiting on long Herdr agents no longer shows that time as idle.
+- Sessions without a transcript or cached split have `time: null` instead of counting as fully idle; `list` prints `-`.
+- `list` DURATION is now the main session's wall time, the same source as ACTIVE/WAITING/IDLE.
+- `export` is fully read-only: it no longer creates the state directory or the session index.
+- The transcript cache format is bumped (v4, stores the non-active gaps) and is rebuilt once.
+
 - `agent-cost serve`: live report page on a local server (127.0.0.1, default port 47821) that refreshes data every
   ~10 s and re-renders the page when it changes, keeping selection, filters, open folders and scroll. Reuses a healthy
   running server, restarts it after a plugin update, stops after 2 h without requests; `--stop`, `--status`,

@@ -611,7 +611,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 
     return {
       raw: raw, id: raw.root_session_id || rootSess.session_id, main: rootSess, sessions: sessions,
       cwd: rootSess.cwd || "", project: cl.isRoot ? cl.rname + " (root)" : cl.pname, cl: cl, state: rootSess.state || "ended",
-      start: start, end: end, total: total, own: own,
+      start: start, end: end, total: total, own: own, time: t.time || null,
       agents: t.agents_cost_usd != null ? t.agents_cost_usd : total - own,
       herdr: kids.length - hkids, hkids: hkids, builtins: builtins,
       headless: !!(rootSess.headless || rootSess.kind === "headless"),
@@ -844,7 +844,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 
       var a = pct(row.start), b = pct(row.end == null ? row.start : row.end);
       var meta = [modelShort(rowModel(row)), rowEffort(row), dur(((row.end || row.start) - row.start) / 1000)].filter(Boolean).join(" · ");
       var role = rowLabel(row);
-      var tip = role + " · " + hm(row.start) + "–" + (rowLive(row) ? "now" : hm(row.end)) + " · " + dur(((row.end || row.start) - row.start) / 1000) + " · " + usd(rowCost(row));
+      var rt = (row.type === "builtin" ? row.b : row.s).time;
+      var tip = role + " · " + hm(row.start) + "–" + (rowLive(row) ? "now" : hm(row.end)) + " · " + dur(((row.end || row.start) - row.start) / 1000) + (rt ? " (active " + dur(rt.active_s) + (rt.waiting_s ? ", waiting " + dur(rt.waiting_s) : "") + ", idle " + dur(rt.idle_s) + ")" : "") + " · " + usd(rowCost(row));
       return '<button type="button" class="tl-row' + (row.type === "builtin" ? " builtin" : "") + (state.sel === row.key ? " sel" : "") + '" data-key="' + esc(row.key) + '" data-idx="' + idx + '" aria-pressed="' + (state.sel === row.key) + '">' +
         '<span class="tl-label" style="--d:' + row.depth + '">' + (row.depth ? '<span class="tl-elbow" aria-hidden="true"></span>' : "") +
         '<span class="tl-text"><span class="tl-role">' + esc(role) + (row.type === "builtin" ? '<span class="incl" title="Cost is included in the parent session">incl.</span>' : "") + (rowPurpose(row) ? '<span class="pur">' + esc(rowPurpose(row)) + '</span>' : "") + (rowLive(row) ? '<span class="dot live" title="live"></span>' : "") + '</span>' +
@@ -906,6 +907,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 
       ["Started", esc(dtfmt.format(row.start))],
       [live ? "Running" : "Ended", live ? "now" : (row.end ? esc(dtfmt.format(row.end)) : "—")],
       ["Duration", esc(dur(((row.end || row.start) - row.start) / 1000))],
+      ["Active", esc(src.time ? dur(src.time.active_s) : "—")],
+      ["Waiting on agents", esc(src.time ? dur(src.time.waiting_s || 0) : "—")],
+      ["Idle", esc(src.time ? dur(src.time.idle_s) : "—")],
       [isB ? "Cost (included)" : "Cost", '<b>' + usd(cost) + '</b>'],
       ["Share of total", '<span class="share"><span class="share-bar"><i style="width:' + Math.min(100, share).toFixed(1) + '%"></i></span>' + share.toFixed(share < 10 ? 1 : 0) + '%</span>']
     ];
@@ -1023,7 +1027,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 
       '<div class="tile primary"><div class="tile-k">Total</div><div class="tile-v">' + usd(r.total) + '</div><div class="tile-s">' + r.sessions.length + (r.sessions.length === 1 ? " session" : " sessions") + (r.builtins ? " · " + r.builtins + " built-in" : "") + '</div></div>' +
       '<div class="tile"><div class="tile-k">Main</div><div class="tile-v">' + usd(r.own) + '</div><div class="tile-s">' + esc(modelShort(r.main.model)) + (r.main.effort ? " · " + esc(r.main.effort) : "") + '</div></div>' +
       '<div class="tile"><div class="tile-k">Agents</div><div class="tile-v">' + usd(r.agents) + '</div><div class="tile-s">' + r.herdr + ' herdr' + (r.hkids ? " · " + r.hkids + " headless" : "") + (r.total > 0 ? " · " + (r.agents / r.total * 100).toFixed(0) + "% of total" : "") + '</div></div>' +
-      '<div class="tile"><div class="tile-k">Time</div><div class="tile-v">' + dur(span) + '</div><div class="tile-s">' + esc(hm(r.start)) + ' → ' + esc(r.state === "live" ? "now" : hm(r.end)) + '</div></div>' +
+      '<div class="tile"><div class="tile-k">Time</div><div class="tile-v">' + dur(span) + '</div><div class="tile-s">' + esc(hm(r.start)) + ' → ' + esc(r.state === "live" ? "now" : hm(r.end)) + (r.time ? ' · main active ' + esc(dur(r.time.active_s)) + (r.time.waiting_s ? ', waiting ' + esc(dur(r.time.waiting_s)) : "") + ', idle ' + esc(dur(r.time.idle_s)) + ' · agents active ' + esc(dur(r.time.agents_active_s)) : "") + '</div></div>' +
       '</div></section>';
   }
 

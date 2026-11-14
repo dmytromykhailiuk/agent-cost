@@ -5,7 +5,11 @@ so the whole agent tree's cost, start time and duration are shown in the status 
 session and shown on a live page served by a local server (or exported as a static HTML report).
 
 - Total cost of the main session plus built-in sub-agents plus Herdr sub-agents, recursively.
-- Start time and duration in the status line; sub-agents get a `[sub:<role> d<depth>]` label.
+- Start time, duration and active/waiting/idle time in the status line; sub-agents get a `[sub:<role> d<depth>]` label.
+- Every session and sub-agent has four times: wall (total), active (working), waiting (on its own sub-agents) and idle
+  (see [Time](#time)).
+- `export` gives other plugins (agent-verify-loop) one session's own cost, tokens and time and each descendant's, as
+  JSON under a fixed contract.
 - One JSON file per main session (`roots/<root>.json`).
 - Live report page on `http://127.0.0.1:<port>/` that updates by itself while it is open.
 
@@ -38,7 +42,7 @@ sessions automatically.
 /agent-cost doctor           # checks hooks, dashboard patch, pricing
 ```
 
-It adds its own line under line 1: `session 14:02 · 18m · Σ $4.21 · main $2.91 · agents $1.30 (3)`. In a sub-agent: `[sub:reviewer d1]` next to the profile label and `session … · Σ … · self $0.40`.
+It adds its own line under line 1: `session 14:02 · 18m · act 9m wait 6m idle 3m · Σ $4.21 · main $2.91 · agents $1.30 (3)`. In a sub-agent: `[sub:reviewer d1]` next to the profile label and `session … · Σ … · self $0.40`.
 
 ## Commands
 
@@ -48,12 +52,13 @@ It adds its own line under line 1: `session 14:02 · 18m · Σ $4.21 · main $2.
 |---|---|
 | `serve [--session SID] [--port N] [--no-open] [--stop\|--status] [--foreground]` | Starts the live page server in the background (or reuses the running one), opens `http://127.0.0.1:<port>/#<sid>`, prints a summary line and the URL as the last line. |
 | `report [--session SID\|--latest\|--all] [--out PATH] [--no-open]` | Static export: writes a self-contained HTML file, opens it, prints a summary line and the absolute path as the last line. |
-| `list [--limit N] [--json] [--all]` | Recorded main sessions inside `visible_roots` (`--all` adds the hidden ones). |
-| `show [SID\|--latest] [--json]` | One session's agent tree. |
+| `list [--limit N] [--json] [--all]` | Recorded main sessions inside `visible_roots` (`--all` adds the hidden ones). DURATION is the main session's wall time and splits into ACTIVE, WAITING and IDLE (`-` when unknown). |
+| `show [SID\|--latest] [--json]` | One session's agent tree with wall, active, waiting and idle time per row. |
+| `export --session SID [--since ISO] [--until ISO] --json` | Read-only JSON for other plugins: the session's own cost, tokens and time and every descendant's (see [Export](#export)). |
 | `scan [--since 30d] [--config-dir DIR]` | Backfills history from transcripts. |
 | `doctor [--dashboard PATH]` | Diagnoses the installation. |
 | `setup [--apply] [--dashboard PATH]` | Shows or applies the dashboard patch. |
-| `version [--json]` | Plugin version. |
+| `version [--json]` | Plugin version; `--json` prints `{"name": "agent-cost", "version": "…", "contract": 1}`. |
 | `hook <event>`, `statusline [--json]` | Internal; called by Claude Code. |
 
 In Claude Code, `/agent-cost` runs `serve --session <current session>` directly (one command, no sub-agent: the page
@@ -111,11 +116,62 @@ link at once. verify-loop triage runs `claude -p --no-session-persistence` and l
 Every non-main session gets a `purpose`: `verify:triage`, `verify:review`, `verify:qa`, `verify:retro` (vloop role, or
 Herdr ids `verify-review-*`, `verify-qa-*`, `vault-retro-*`), `vault` (`vault-*` agents, vault `Operation:` prompts),
 `harness` (cwd inside `~/.claude` or `$CLAUDE_CONFIG_DIR`) or `task`. The timeline and the agent panel show it as a
-small badge. agent-vault's vault-keeper/vault-reviewer and anything run through the built-in Agent tool are built-in
-sub-agents (`subagents/` in the parent transcript) and are already part of the parent's cost.
+small badge. Anything run through the built-in Agent tool is a built-in sub-agent (`subagents/` in the parent
+transcript) and already part of the parent's cost; vault-keeper/vault-reviewer usually run that way, but agent-vault
+and agent-verify-loop can also start them as Herdr agents (then they are separate sessions). Built-in sub-agents get a
+`purpose` and `run_id` too: a vloop run path in the prompt (`/runs/<run>/attempt-N/<role>` or `/runs/<run>/retro/`)
+gives `verify:<role>` and the run id (a vault-keeper retro is `verify:retro`), the agent type gives `verify:*` or
+`vault` (`vault-keeper`, `vault-reviewer`), and an `Operation:` prompt about the vault gives `vault`.
 
 A link is written into the session record, so it survives the launch record or task file being deleted. A session that
 was first recorded as its own root and later gets a parent is moved under that parent with its whole subtree.
+
+## Time
+
+Every session, built-in sub-agent and root total has four times, with `wall = active + waiting + idle`:
+
+- **wall**: in `show`/`roots/*.json` the session span (first record → session end, or now while it is live); in
+  `export` the first → last transcript record inside the window.
+- **active**: the sum of gaps between consecutive transcript records (user, assistant, system, attachment; the main
+  session's own records only, sidechains excluded), except (a) a gap that ends at a real user prompt (typed text or a
+  slash command, not a tool result, meta record or task notification): that is waiting for the user, and (b) any
+  single gap longer than the idle threshold. Threshold: 300 s by default, `idle_gap_s` in the config file or
+  `$AGENT_COST_IDLE_GAP_S`.
+- **waiting**: the part of the non-active gaps (rules a and b) during which at least one descendant of the session
+  (Herdr tab, headless run, built-in sub-agent, at any depth) was running, between its first and last record.
+  Overlapping descendants are merged, never counted twice. Sessions without descendants have waiting 0.
+- **idle**: `wall − active − waiting` (waiting for the user with no agent running, long tool/permission waits, trailing
+  time after the last record).
+
+A session without a transcript and without a cached time split (recorded by an older build) has `time: null`: `show`
+prints no split for it, `list` prints `-`, and the live page shows `—`; it is never reported as fully idle. `export`
+leaves such descendants out and reports zeros for a main session without a transcript.
+
+The synthetic vloop triage session counts its `duration` as wall and active, waiting and idle 0. `totals.time` in a root
+file is the main session's own `{wall_s, active_s, waiting_s, idle_s}` plus `agents_active_s`, the summed active time of all its descendants
+(it can exceed wall when agents run in parallel). The live page shows active, waiting and idle in the agent panel,
+the row tooltip and the Time tile; `show` and `list` print them, and the status line shows `act … wait … idle …`
+(`wait` only when non-zero).
+
+## Export
+
+`agent-cost export --session <sid> [--since <ISO8601>] [--until <ISO8601>] --json` (contract 1) computes live from the
+transcripts like `show` and never writes state files. An unknown session exits 1 with `{"error": "..."}`.
+
+```
+contract, generated_at, session_id, window: {since, until}
+main: {session_id, usd, tokens: {input, output, cache_creation, cache_read}, models: {<model>: {usd, tokens}},
+       time: {wall_ms, active_ms, waiting_ms, idle_ms}}
+agents[]: {session_id, parent_session_id, herdr_id, kind (herdr|headless|builtin|synthetic),
+           purpose (verify:triage|verify:review|verify:qa|verify:retro|vault|null), run_id, model, usd, tokens, time}
+```
+
+`main` counts only the session's own transcript records (no built-in or Herdr descendants). `agents` lists every
+descendant, recursive and flattened, each with its own numbers; built-in sub-agents have `session_id`
+`agent-<agent id>`. USD is the transcript estimate. With a window, only records inside `[since, until]` count and agents
+with no activity in it are left out; a synthetic triage session is kept whole when its span overlaps the window. Every `time` has
+`wall = active + waiting + idle`; waiting uses the descendants' spans inside the window. Consumers treat a missing
+`waiting_ms` (older builds) as 0. `export` never creates or writes anything, not even the state directory.
 
 ## Visible roots
 
@@ -138,7 +194,7 @@ server.json, server.log        the running live server
 ```
 
 Config: `~/.config/agent-cost/config.json` (or `$AGENT_COST_CONFIG`) with `project_roots` (folders used to group
-sessions in the report) and `visible_roots` (see above), e.g.
+sessions in the report), `visible_roots` (see above) and `idle_gap_s` (idle threshold in seconds, default 300), e.g.
 `{"visible_roots": ["~/Desktop", "~/work"], "project_roots": ["~/Desktop/projects"]}`.
 Without it the report uses whichever of `~/projects`, `~/Desktop/projects`, `~/Desktop/npm-packages`, `~/code`,
 `~/src`, `~/dev`, `~/work` and `~/.claude` exist; sessions elsewhere are grouped under "Other".
@@ -147,9 +203,11 @@ Without it the report uses whichever of `~/projects`, `~/Desktop/projects`, `~/D
 
 ```
 schema, generated_at, root_session_id
-totals: cost_usd, own_cost_usd, agents_cost_usd, sessions, builtin_agents, by_model
-sessions[]: session_id, kind (main|herdr|headless), parent_session_id, depth, herdr_id, role, purpose, headless, entrypoint,
-            cwd, model, effort, started_at, last_activity_at, ended_at, duration_s, state, task, result_excerpt, transcript_path,
+totals: cost_usd, own_cost_usd, agents_cost_usd, sessions, builtin_agents, by_model,
+        time: {wall_s, active_s, waiting_s, idle_s, agents_active_s} | null
+sessions[]: session_id, kind (main|herdr|headless), parent_session_id, depth, herdr_id, role, purpose, run_id, headless,
+            entrypoint, cwd, model, effort, started_at, last_activity_at, ended_at, duration_s,
+            time: {wall_s, active_s, waiting_s, idle_s} | null, state, task, result_excerpt, transcript_path,
             cost: {effective_usd, reported_usd, reported_source, estimated_usd, by_model},
             subtree_cost_usd, builtin_agents[]
 ```

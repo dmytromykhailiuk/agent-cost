@@ -18,12 +18,16 @@ def _ensure(path):
     return path
 
 
-def state_dir():
+def state_path():
     override = os.environ.get("AGENT_COST_STATE_DIR")
     if override:
-        return _ensure(Path(override).expanduser())
+        return Path(override).expanduser()
     base = os.environ.get("XDG_STATE_HOME") or str(Path.home() / ".local" / "state")
-    return _ensure(Path(base) / "agent-cost")
+    return Path(base) / "agent-cost"
+
+
+def state_dir():
+    return _ensure(state_path())
 
 
 def sessions_dir(root_sid):
@@ -113,6 +117,30 @@ def excerpt(text, limit=600):
     if len(text) > limit:
         return text[: max(limit - 1, 0)].rstrip() + "…"
     return text
+
+
+DEFAULT_IDLE_GAP_S = 300
+
+
+def config_path():
+    return Path(os.environ.get("AGENT_COST_CONFIG") or "~/.config/agent-cost/config.json").expanduser()
+
+
+def _positive(value):
+    try:
+        num = float(value)
+    except (TypeError, ValueError):
+        return None
+    return num if num > 0 and num != float("inf") else None
+
+
+def idle_gap_s():
+    env = _positive(os.environ.get("AGENT_COST_IDLE_GAP_S"))
+    if env is not None:
+        return env
+    cfg = read_json(config_path(), {})
+    value = _positive(cfg.get("idle_gap_s")) if isinstance(cfg, dict) else None
+    return DEFAULT_IDLE_GAP_S if value is None else value
 
 
 def plugin_version():

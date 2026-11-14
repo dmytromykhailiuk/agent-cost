@@ -31,7 +31,7 @@ def inject(template, data):
 
 
 def config_path():
-    return Path(os.environ.get("AGENT_COST_CONFIG") or "~/.config/agent-cost/config.json").expanduser()
+    return core.config_path()
 
 
 def project_roots():
@@ -280,6 +280,16 @@ def fmt_usd(value):
     return "-" if value is None else f"${value:.2f}"
 
 
+def _list_time(t, duration):
+    if not isinstance(t, dict) or not isinstance(t.get("active_s"), (int, float)):
+        return None
+    out = {k: int(t.get(k) or 0) for k in ("wall_s", "active_s", "waiting_s", "idle_s")}
+    if duration is not None and duration > out["wall_s"]:
+        out["idle_s"] += duration - out["wall_s"]
+        out["wall_s"] = duration
+    return out
+
+
 def _list_rows(limit, show_all=False):
     rows = []
     vroots = [] if show_all else visible_roots()
@@ -290,6 +300,9 @@ def _list_rows(limit, show_all=False):
         if s.get("state") == "live":
             last = max(last or 0, core.now())
         duration = int(last - start) if start is not None and last is not None and last >= start else None
+        t = _list_time(s.get("time"), duration)
+        if t:
+            duration = t["wall_s"]
         rows.append({
             "root_session_id": s["root_session_id"],
             "started_at": s.get("started_at"),
@@ -298,6 +311,7 @@ def _list_rows(limit, show_all=False):
             "title": s.get("title"),
             "state": s.get("state"),
             "duration_s": duration,
+            "time": t,
             "cost_usd": s.get("cost_usd"),
             "herdr_agents": max(0, (s.get("sessions") or 1) - 1),
             "builtin_agents": s.get("builtin_agents") or 0,
@@ -314,13 +328,15 @@ def cmd_list(args):
     if not rows:
         print("no sessions recorded")
         return 0
-    table = [("START", "PROJECT", "STATE", "DURATION", "TOTAL", "AGENTS", "SESSION")]
+    table = [("START", "PROJECT", "STATE", "DURATION", "ACTIVE", "WAITING", "IDLE", "TOTAL", "AGENTS", "SESSION")]
     for r in rows:
         agents = str(r["herdr_agents"]) + (f"+{r['builtin_agents']}b" if r["builtin_agents"] else "")
+        t = r["time"] or {}
         table.append((fmt_time(r["started_at"]), r["project"] or "-", r["state"] or "-",
-                      fmt_duration(r["duration_s"]), fmt_usd(r["cost_usd"]), agents, r["root_session_id"]))
+                      fmt_duration(r["duration_s"]), fmt_duration(t.get("active_s")), fmt_duration(t.get("waiting_s")),
+                      fmt_duration(t.get("idle_s")), fmt_usd(r["cost_usd"]), agents, r["root_session_id"]))
     widths = [max(len(row[i]) for row in table) for i in range(len(table[0]))]
-    right = {3, 4, 5}
+    right = {3, 4, 5, 6, 7, 8}
     for row in table:
         cells = [c.rjust(widths[i]) if i in right else c.ljust(widths[i]) for i, c in enumerate(row)]
         print("  ".join(cells).rstrip())
@@ -353,8 +369,16 @@ def _model(m, effort):
     return f"{m}/{effort}" if effort else m
 
 
-def _line(prefix, name, model, effort, started, duration, cost, extra=""):
-    return f"{prefix}{name}  {_model(model, effort)}  {fmt_time(started)}  {fmt_duration(duration)}  {fmt_usd(cost)}{extra}"
+def fmt_split(t):
+    if not isinstance(t, dict):
+        return ""
+    waiting = f", waiting {fmt_duration(t.get('waiting_s'))}" if t.get("waiting_s") else ""
+    return f" (active {fmt_duration(t.get('active_s'))}{waiting}, idle {fmt_duration(t.get('idle_s'))})"
+
+
+def _line(prefix, name, model, effort, started, duration, cost, extra="", t=None):
+    return (f"{prefix}{name}  {_model(model, effort)}  {fmt_time(started)}  {fmt_duration(duration)}{fmt_split(t)}"
+            f"  {fmt_usd(cost)}{extra}")
 
 
 def render_tree(data):
@@ -364,6 +388,13 @@ def render_tree(data):
     root = next((s for s in sessions if s.get("session_id") == root_sid), sessions[0] if sessions else {})
     lines = [f"{root_sid}  {root.get('cwd') or '-'}  {root.get('state') or '-'}  total {fmt_usd(t.get('cost_usd'))}"
              f"  (main {fmt_usd(t.get('own_cost_usd'))}, agents {fmt_usd(t.get('agents_cost_usd'))})"]
+    tt = t.get("time")
+    if isinstance(tt, dict):
+        lines.append(f"time: wall {fmt_duration(tt.get('wall_s'))}, active {fmt_duration(tt.get('active_s'))}, "
+                     f"waiting {fmt_duration(tt.get('waiting_s'))}, idle {fmt_duration(tt.get('idle_s'))}; "
+                     f"agents active {fmt_duration(tt.get('agents_active_s'))}")
+    elif "time" in t:
+        lines.append("time: unknown")
     children = {}
     ids = {s.get("session_id") for s in sessions}
     for s in sessions:
@@ -377,7 +408,7 @@ def render_tree(data):
         sid = s.get("session_id")
         extra = f"  (subtree {fmt_usd(s.get('subtree_cost_usd'))})" if children.get(sid) else ""
         lines.append(_line(prefix + branch, _label(s), s.get("model"), s.get("effort"), s.get("started_at"),
-                           s.get("duration_s"), (s.get("cost") or {}).get("effective_usd"), extra))
+                           s.get("duration_s"), (s.get("cost") or {}).get("effective_usd"), extra, s.get("time")))
         if sid in seen:
             return
         seen = seen | {sid}
@@ -390,7 +421,7 @@ def render_tree(data):
             else:
                 name = f"[{item.get('agent_type') or 'agent'}] {item.get('description') or ''}".rstrip()
                 lines.append(_line(sub + br, name, item.get("model"), item.get("effort"), item.get("started_at"),
-                                   item.get("duration_s"), item.get("cost_usd"), "  incl."))
+                                   item.get("duration_s"), item.get("cost_usd"), "  incl.", item.get("time")))
 
     if root:
         walk(root, "", "", frozenset())

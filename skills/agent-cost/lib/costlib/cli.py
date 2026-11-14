@@ -63,7 +63,7 @@ def _dispatch(module_name, func_name):
 def _version(args):
     version = core.plugin_version()
     if args.json:
-        print(json.dumps({"version": version, "path": str(core.SKILL_DIR)}))
+        print(json.dumps({"name": "agent-cost", "version": version, "contract": 1}))
     else:
         print(version)
     return 0
@@ -111,6 +111,13 @@ def build_parser():
     p.add_argument("--latest", action="store_true")
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=_dispatch("report", "cmd_show"))
+
+    p = sub.add_parser("export", help="Print a session's own cost and time and its descendants' as JSON (read-only).")
+    p.add_argument("--session", required=True)
+    p.add_argument("--since")
+    p.add_argument("--until")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=_dispatch("export", "cmd_export"))
 
     p = sub.add_parser("scan", help="Backfill sessions from the transcript history.")
     p.add_argument("--since", default="30d")

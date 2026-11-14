@@ -6,9 +6,9 @@ import os
 import re
 from pathlib import Path
 
-from . import core, pricing
+from . import auxlink, core, pricing
 
-PARSER_VERSION = 2
+PARSER_VERSION = 4
 HEAD_BYTES = 4096
 EXCERPT = 600
 
@@ -73,6 +73,11 @@ def _empty_state():
         "entrypoint": None,
         "herdr": {},
         "lines": 0,
+        "prompt_run": None,
+        "idle_gap_s": core.idle_gap_s(),
+        "prev_ts": None,
+        "active_s": 0.0,
+        "gaps": [],
     }
 
 
@@ -113,6 +118,36 @@ def _user_prompt(rec, msg):
     return core.excerpt(text, EXCERPT) or None
 
 
+def _human_input(rec, msg):
+    if rec.get("isMeta") or rec.get("isCompactSummary") or rec.get("toolUseResult") is not None:
+        return False
+    origin = rec.get("origin")
+    if isinstance(origin, dict) and origin.get("kind") not in (None, "human"):
+        return False
+    content = msg.get("content") if isinstance(msg, dict) else None
+    if isinstance(content, list) and any(isinstance(b, dict) and b.get("type") == "tool_result" for b in content):
+        return False
+    text = "\n".join(_text_blocks(content)).strip()
+    if not text:
+        return False
+    return bool(_CMD_NAME_RE.search(text)) or not text.lower().startswith(_SKIP_PREFIXES)
+
+
+def _tick(state, ts, human):
+    prev = state.get("prev_ts")
+    if prev is not None and ts > prev:
+        if not human and ts - prev <= state["idle_gap_s"]:
+            state["active_s"] += ts - prev
+        else:
+            gaps = state.setdefault("gaps", [])
+            if gaps and gaps[-1][1] == prev:
+                gaps[-1][1] = ts
+            else:
+                gaps.append([prev, ts])
+    if prev is None or ts > prev:
+        state["prev_ts"] = ts
+
+
 def _tool_result_texts(content):
     if not isinstance(content, list):
         return []
@@ -148,7 +183,7 @@ def parse_herdr_links(text, links=None):
     return links
 
 
-def _apply(state, rec, idx, main_only):
+def _apply(state, rec, idx, main_only, window=None):
     rtype = rec.get("type")
     if rtype == "agent-name":
         if rec.get("agentName"):
@@ -165,24 +200,30 @@ def _apply(state, rec, idx, main_only):
         return
     if main_only and rec.get("isSidechain") is True:
         return
+    ts = core.parse_ts(rec.get("timestamp"))
+    if window is not None and (ts is None or (window[0] is not None and ts < window[0])
+                               or (window[1] is not None and ts > window[1])):
+        return
     if state["session_id"] is None and rec.get("sessionId"):
         state["session_id"] = rec["sessionId"]
     if state["cwd"] is None and rec.get("cwd"):
         state["cwd"] = rec["cwd"]
     if state.get("entrypoint") is None and isinstance(rec.get("entrypoint"), str):
         state["entrypoint"] = rec["entrypoint"]
-    ts = core.parse_ts(rec.get("timestamp"))
+    msg = rec.get("message")
     if ts is not None:
+        _tick(state, ts, rtype == "user" and _human_input(rec, msg))
         if state["first_ts"] is None or ts < state["first_ts"]:
             state["first_ts"] = ts
         if state["last_ts"] is None or ts > state["last_ts"]:
             state["last_ts"] = ts
-    msg = rec.get("message")
     if not isinstance(msg, dict):
         return
     if rtype == "user":
         if state["first_user_prompt"] is None:
             state["first_user_prompt"] = _user_prompt(rec, msg)
+            if state["first_user_prompt"]:
+                state["prompt_run"] = auxlink.prompt_run("\n".join(_text_blocks(msg.get("content"))))
         for text in _tool_result_texts(msg.get("content")):
             parse_herdr_links(text, state["herdr"])
         return
@@ -205,7 +246,7 @@ def _apply(state, rec, idx, main_only):
         state["entries"][key] = [model] + [n[k] for k in pricing.TOKEN_KEYS]
 
 
-def _feed(state, raw_lines, main_only):
+def _feed(state, raw_lines, main_only, window=None):
     for raw in raw_lines:
         idx = state["lines"]
         state["lines"] += 1
@@ -214,7 +255,7 @@ def _feed(state, raw_lines, main_only):
         except (ValueError, UnicodeDecodeError):
             continue
         if isinstance(rec, dict):
-            _apply(state, rec, idx, main_only)
+            _apply(state, rec, idx, main_only, window)
 
 
 def _result(path, state):
@@ -249,7 +290,47 @@ def _result(path, state):
         "entrypoint": state.get("entrypoint"),
         "headless": is_headless(state.get("entrypoint")),
         "herdr_links": list(state["herdr"].values()),
+        "prompt_run": list(state["prompt_run"]) if state.get("prompt_run") else None,
+        "time": time_split(state["first_ts"], state["last_ts"], state.get("active_s")),
+        "gaps": [list(g) for g in state.get("gaps") or []],
     }
+
+
+def time_split(first_ts, last_ts, active_s, waiting_s=0.0):
+    if first_ts is None or last_ts is None:
+        return {"wall_s": 0.0, "active_s": 0.0, "waiting_s": 0.0, "idle_s": 0.0}
+    wall = max(0.0, last_ts - first_ts)
+    active = min(wall, max(0.0, float(active_s or 0.0)))
+    waiting = min(wall - active, max(0.0, float(waiting_s or 0.0)))
+    return {"wall_s": wall, "active_s": active, "waiting_s": waiting, "idle_s": wall - active - waiting}
+
+
+def merge_spans(spans):
+    clean = sorted((float(a), float(b)) for a, b in (tuple(x) for x in spans or [] if x and len(x) == 2)
+                   if isinstance(a, (int, float)) and isinstance(b, (int, float)) and b > a)
+    out = []
+    for a, b in clean:
+        if out and a <= out[-1][1]:
+            out[-1][1] = max(out[-1][1], b)
+        else:
+            out.append([a, b])
+    return out
+
+
+def waiting_s(gaps, spans):
+    merged = merge_spans(spans)
+    total = 0.0
+    for g in gaps or []:
+        if not g or len(g) != 2:
+            continue
+        g0, g1 = g
+        for a, b in merged:
+            if b <= g0:
+                continue
+            if a >= g1:
+                break
+            total += min(b, g1) - max(a, g0)
+    return total
 
 
 def _cache_path(path, main_only):
@@ -261,6 +342,17 @@ def _cache_path(path, main_only):
 def _split(data):
     *complete, tail = data.split(b"\n")
     return complete, tail
+
+
+def summarize_window(path, since=None, until=None, *, main_only=True):
+    path = Path(path).expanduser()
+    state = _empty_state()
+    try:
+        with open(path, "rb") as f:
+            _feed(state, f, main_only, (since, until))
+    except OSError:
+        pass
+    return _result(path, state)
 
 
 def summarize(path, *, main_only=True, use_cache=True):
@@ -278,7 +370,8 @@ def summarize(path, *, main_only=True, use_cache=True):
                 c_off = cached.get("offset")
                 if isinstance(c_off, int) and 0 < c_off <= st.st_size:
                     head = hashlib.sha1(f.read(min(c_off, HEAD_BYTES))).hexdigest()
-                    if head == cached.get("head") and isinstance(cached.get("state"), dict):
+                    if (head == cached.get("head") and isinstance(cached.get("state"), dict)
+                            and cached["state"].get("idle_gap_s") == core.idle_gap_s()):
                         state, offset = cached["state"], c_off
             f.seek(offset)
             data = f.read()
@@ -314,14 +407,14 @@ def _agent_meta(jsonl):
     return meta if isinstance(meta, dict) else {}
 
 
-def builtin_agents(main_transcript_path):
+def builtin_agents(main_transcript_path, use_cache=True):
     if not main_transcript_path:
         return []
     main = Path(main_transcript_path).expanduser()
     out = []
     for f in sorted((main.parent / main.stem / "subagents").glob("agent-*.jsonl")):
         meta = _agent_meta(f)
-        s = summarize(f, main_only=False)
+        s = summarize(f, main_only=False, use_cache=use_cache)
         start, end = s["first_ts"], s["last_ts"]
         out.append({
             "agent_id": f.stem[len("agent-"):],
@@ -337,6 +430,8 @@ def builtin_agents(main_transcript_path):
             "ended_at": end,
             "duration_s": (end - start) if start is not None and end is not None else None,
             "prompt_excerpt": s["first_user_prompt"],
+            "prompt_run": s["prompt_run"],
+            "time": s["time"],
             "result_excerpt": s["last_assistant_text"],
             "by_model": s["by_model"],
             "cost_usd": s["estimated_usd"],
