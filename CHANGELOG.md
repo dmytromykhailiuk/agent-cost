@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0 — 2026-11-15
+
 - Time split everywhere: every session, built-in sub-agent and root total has `time: {wall_s, active_s, idle_s}`
   (`wall = active + idle`). Active is the sum of gaps between transcript records, minus the wait before each real user
   prompt and any gap over the idle threshold (300 s, `idle_gap_s` config or `$AGENT_COST_IDLE_GAP_S`). Shown in `show`,
