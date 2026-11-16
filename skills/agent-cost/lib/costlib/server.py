@@ -1,7 +1,9 @@
 import hashlib
+import ipaddress
 import json
 import os
 import signal
+import socket
 import subprocess
 import sys
 import threading
@@ -18,6 +20,9 @@ from urllib.parse import parse_qs
 from . import aggregate, core, registry, report
 
 HOST = "127.0.0.1"
+HOST_ENV = "AGENT_COST_HOST"
+ALLOWED_HOSTS_ENV = "AGENT_COST_ALLOWED_HOSTS"
+WILDCARD_HOSTS = ("", "0.0.0.0", "::")
 DEFAULT_PORT = 47821
 IDLE_TIMEOUT_S = 2 * 3600
 REFRESH_EVERY_S = 10
@@ -25,6 +30,63 @@ REFRESH_OVERLAP_S = 60
 VERSION_MEMO_S = 1.0
 START_WAIT_S = 15.0
 HISTORY = 64
+
+
+def _host_name(value):
+    value = value.strip().lower()
+    if value.startswith("["):
+        end = value.find("]")
+        return (value[1:end], value[end + 1:].lstrip(":")) if end > 0 else (value, "")
+    if value.count(":") == 1:
+        name, _, port = value.partition(":")
+        return name, port
+    return value, ""
+
+
+def parse_hosts(values):
+    out = []
+    for value in values or ():
+        for part in str(value).split(","):
+            name = _host_name(part)[0] if part.strip() else ""
+            if name and name not in out:
+                out.append(name)
+    return out
+
+
+def resolve_host(flag=None):
+    return (flag if flag is not None else os.environ.get(HOST_ENV) or HOST).strip()
+
+
+def resolve_allowed(flags=None):
+    return parse_hosts(flags if flags else [os.environ.get(ALLOWED_HOSTS_ENV, "")])
+
+
+def is_loopback(host):
+    if host.lower() == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+def local_host(host):
+    if host in WILDCARD_HOSTS:
+        return "::1" if host == "::" else HOST
+    return host
+
+
+def url_host(host):
+    host = local_host(host)
+    return f"[{host}]" if ":" in host else host
+
+
+def exposure_warning(host):
+    if is_loopback(host):
+        return None
+    shown = "all interfaces" if host in WILDCARD_HOSTS else host
+    return (f"agent-cost serve: WARNING listening on {shown}; the page has no auth and is reachable by anyone "
+            "who can reach the port")
 
 
 def state_file():
@@ -229,15 +291,23 @@ class Handler(BaseHTTPRequestHandler):
     def do_HEAD(self):
         self.do_GET()
 
-    def _request_ok(self):
+    def _host_ok(self, value):
+        value = value.strip().lower()
         port = self.server.server_address[1]
-        allowed = {f"127.0.0.1:{port}", f"localhost:{port}"}
-        if ":" in self.server.server_address[0]:
-            allowed.add(f"[::1]:{port}")
-        if (self.headers.get("Host") or "").strip().lower() not in allowed:
+        if value in {f"127.0.0.1:{port}", f"localhost:{port}"}:
+            return True
+        if ":" in self.server.server_address[0] and value == f"[::1]:{port}":
+            return True
+        return bool(value) and _host_name(value)[0] in self.server.extra_hosts
+
+    def _request_ok(self):
+        if not self._host_ok(self.headers.get("Host") or ""):
             return False
         origin = self.headers.get("Origin")
-        return origin is None or origin.strip().lower() in {f"http://{h}" for h in allowed}
+        if origin is None:
+            return True
+        origin = origin.strip().lower()
+        return origin.startswith("http://") and self._host_ok(origin[len("http://"):])
 
     def do_GET(self):
         if not self._request_ok():
@@ -281,14 +351,25 @@ class Handler(BaseHTTPRequestHandler):
 class Server(ThreadingHTTPServer):
     daemon_threads = True
     allow_reuse_address = True
+    extra_hosts = frozenset()
 
 
-def bind(port):
+class Server6(Server):
+    address_family = socket.AF_INET6
+
+
+def bind(port, host=HOST, allowed=()):
+    cls = Server6 if ":" in host else Server
+    extra = set(allowed)
+    if host not in WILDCARD_HOSTS + (HOST, "localhost", "::1"):
+        extra.add(host.lower())
     for candidate in ([port] if port else []) + [0]:
         try:
-            return Server((HOST, candidate), Handler)
+            httpd = cls((host, candidate), Handler)
         except OSError:
             continue
+        httpd.extra_hosts = frozenset(extra)
+        return httpd
     raise OSError("no free port")
 
 
@@ -301,13 +382,13 @@ def _idle_watch(httpd, app, every):
 
 
 def run_foreground(port=DEFAULT_PORT, focus=None, idle_timeout=IDLE_TIMEOUT_S, refresh_every=REFRESH_EVERY_S,
-                   ready=None, write_state=True):
-    httpd = bind(port)
+                   ready=None, write_state=True, host=HOST, allowed=()):
+    httpd = bind(port, host, allowed)
     app = App(focus=focus, idle=IdleTracker(idle_timeout), refresh_every=refresh_every)
     httpd.app = app
     actual = httpd.server_address[1]
     info = {"pid": os.getpid(), "port": actual, "started_at": core.iso(app.started_at), "version": app.version,
-            "url": f"http://{HOST}:{actual}/"}
+            "host": host, "allowed_hosts": sorted(allowed), "url": f"http://{url_host(host)}:{actual}/"}
     if write_state:
         core.write_json_atomic(state_file(), info)
     log(f"listening on {info['url']} (version {app.version})")
@@ -346,9 +427,9 @@ def _pid_alive(pid):
     return True
 
 
-def health(port, timeout=1.5):
+def health(port, timeout=1.5, host=HOST):
     try:
-        with urllib.request.urlopen(f"http://{HOST}:{port}/api/health", timeout=timeout) as r:
+        with urllib.request.urlopen(f"http://{url_host(host)}:{port}/api/health", timeout=timeout) as r:
             data = json.loads(r.read().decode("utf-8"))
         return data if isinstance(data, dict) and data.get("ok") else None
     except (OSError, ValueError):
@@ -359,7 +440,7 @@ def running():
     info = core.read_json(state_file())
     if not isinstance(info, dict) or not _pid_alive(info.get("pid")):
         return None
-    h = health(info.get("port"))
+    h = health(info.get("port"), host=info.get("host") or HOST)
     if not h or h.get("pid") != info.get("pid"):
         return None
     info["version"] = h.get("version")
@@ -400,16 +481,18 @@ def _cli_path():
     return Path(core.SKILL_DIR) / "bin" / "agent-cost"
 
 
-def spawn(port):
+def spawn(port, host=HOST, allowed=()):
     log_path = log_file()
-    cmd = [sys.executable, str(_cli_path()), "serve", "--foreground", "--port", str(port)]
+    cmd = [sys.executable, str(_cli_path()), "serve", "--foreground", "--port", str(port), "--host", host]
+    for name in allowed:
+        cmd += ["--allow-host", name]
     with open(log_path, "a", encoding="utf-8") as out, open(os.devnull, "rb") as devnull:
         proc = subprocess.Popen(cmd, stdin=devnull, stdout=out, stderr=out, start_new_session=True,
                                 close_fds=True, cwd=str(core.state_dir()))
     deadline = time.monotonic() + START_WAIT_S
     while time.monotonic() < deadline:
         info = core.read_json(state_file())
-        if isinstance(info, dict) and info.get("pid") == proc.pid and health(info.get("port"), 0.5):
+        if isinstance(info, dict) and info.get("pid") == proc.pid and health(info.get("port"), 0.5, host):
             return info
         if proc.poll() is not None:
             break
@@ -418,7 +501,7 @@ def spawn(port):
 
 
 def url_for(info, sid=None):
-    return f"http://{HOST}:{info['port']}/" + (f"#{sid}" if sid else "")
+    return f"http://{url_host(info.get('host') or HOST)}:{info['port']}/" + (f"#{sid}" if sid else "")
 
 
 def _focus_sid(args):
@@ -426,15 +509,16 @@ def _focus_sid(args):
     return sid if registry.valid_sid(sid) else None
 
 
-def _ensure_running(port):
+def _ensure_running(port, host=HOST, allowed=()):
     info = running()
     how = "started"
-    if info and info.get("version") != core.plugin_version():
+    if info and (info.get("version") != core.plugin_version() or (info.get("host") or HOST) != host
+                 or sorted(info.get("allowed_hosts") or []) != sorted(allowed)):
         stop_server(info)
         info, how = None, "restarted"
     if info:
         return info, "running"
-    info = spawn(port)
+    info = spawn(port, host, allowed)
     return info, how
 
 
@@ -448,6 +532,8 @@ def cmd_serve(args):
         print(f"agent-cost serve: invalid session id {wanted!r}", file=sys.stderr)
         return 2
     port = args.port if args.port is not None else DEFAULT_PORT
+    host = resolve_host(getattr(args, "host", None))
+    allowed = resolve_allowed(getattr(args, "allow_host", None))
     if args.stop:
         print("agent-cost serve: stopped" if stop_server() else "agent-cost serve: not running")
         return 0
@@ -462,24 +548,30 @@ def cmd_serve(args):
     if args.foreground:
         def ready(httpd):
             print(f"agent-cost serve: listening pid {os.getpid()}", flush=True)
-            print(f"http://{HOST}:{httpd.server_address[1]}/", flush=True)
+            warning = exposure_warning(host)
+            if warning:
+                print(warning, file=sys.stderr, flush=True)
+            print(f"http://{url_host(host)}:{httpd.server_address[1]}/", flush=True)
 
         try:
             signal.signal(signal.SIGTERM, _terminate)
         except ValueError:
             pass
         try:
-            run_foreground(port=port, ready=ready)
+            run_foreground(port=port, ready=ready, host=host, allowed=allowed)
         except KeyboardInterrupt:
             pass
         return 0
 
-    info, how = _ensure_running(port)
+    info, how = _ensure_running(port, host, allowed)
     if not info:
         print(f"agent-cost serve: server failed to start, see {log_file()}", file=sys.stderr)
         return 1
     sid = _focus_sid(args)
     url = url_for(info, sid)
+    warning = exposure_warning(info.get("host") or HOST)
+    if warning:
+        print(warning, file=sys.stderr)
     print(f"agent-cost serve: {how} pid {info['pid']} on port {info['port']} (live, refresh every {REFRESH_EVERY_S}s)")
     if not args.no_open:
         try:

@@ -38,7 +38,15 @@ the main agent runs one command and relays only the URL. No sub-agent is needed.
 3. Reply with only that URL on its own line.
 
 The page updates by itself while it is open: the server rescans recent transcripts every ~10 s and the page re-renders
-when the data changes. The server listens on 127.0.0.1 only and stops after 2 h without requests.
+when the data changes. The server listens on 127.0.0.1 only (unless `--host`/`AGENT_COST_HOST` is set) and stops after 2 h without requests.
+
+### Reaching the page from another device (e.g. phone over Tailscale)
+
+`serve --host <addr>` (env `AGENT_COST_HOST`) sets the bind address; `--allow-host <name>` (repeatable or
+comma-separated, env `AGENT_COST_ALLOWED_HOSTS`) adds accepted Host header names. Flags win over env vars. The page has
+no auth, so a non-loopback bind prints a warning; other Host headers still get 403. Example:
+`AGENT_COST_HOST=0.0.0.0 AGENT_COST_ALLOWED_HOSTS=<tailnet-ip>,<machine>.<tailnet>.ts.net <skill_dir>/bin/agent-cost serve --no-open`,
+then open `http://<tailnet-ip>:47821/`. A running server with different settings is restarted.
 
 ## Status line segment
 

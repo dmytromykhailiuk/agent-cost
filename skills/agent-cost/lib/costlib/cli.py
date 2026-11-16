@@ -92,6 +92,10 @@ def build_parser():
 
     p = sub.add_parser("serve", help="Run the live report page on a local server and print its URL.")
     p.add_argument("--port", type=int)
+    p.add_argument("--host", help="Bind address (default 127.0.0.1, env AGENT_COST_HOST).")
+    p.add_argument("--allow-host", action="append", metavar="HOST",
+                   help="Extra Host header value to accept, repeatable or comma-separated "
+                        "(env AGENT_COST_ALLOWED_HOSTS).")
     p.add_argument("--session")
     p.add_argument("--no-open", action="store_true")
     p.add_argument("--foreground", action="store_true")

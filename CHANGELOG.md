@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-11-16
+
+- Remote access: `agent-cost serve --host <addr>` (or `$AGENT_COST_HOST`) binds the live page to another interface,
+  e.g. a Tailscale address. `--allow-host <name>` (repeatable, or `$AGENT_COST_ALLOWED_HOSTS`) adds extra accepted
+  `Host` header values for the page.
+
 ## 0.2.0 — 2026-11-15
 
 - Time split everywhere: every session, built-in sub-agent and root total has `time: {wall_s, active_s, idle_s}`

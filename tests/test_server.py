@@ -198,6 +198,144 @@ class ForegroundServerTest(ServerBase):
         self.assertEqual(out.getvalue().strip().splitlines()[-1], f"http://127.0.0.1:{self.port}/")
 
 
+class CustomHostTest(ServerBase):
+    def start(self, host="127.0.0.1", allowed=()):
+        self.seed()
+        started = threading.Event()
+        holder = {}
+
+        def ready(httpd):
+            holder["httpd"] = httpd
+            started.set()
+
+        thread = threading.Thread(target=server.run_foreground, daemon=True,
+                                  kwargs=dict(port=0, ready=ready, refresh_every=3600, host=host, allowed=allowed))
+        thread.start()
+        self.assertTrue(started.wait(10))
+        httpd = holder["httpd"]
+
+        def shutdown():
+            httpd.shutdown()
+            thread.join(10)
+
+        self.addCleanup(shutdown)
+        return httpd.server_address[1]
+
+    def status(self, port, host, path="/api/health", extra=None):
+        import http.client
+        conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+        try:
+            conn.putrequest("GET", path, skip_host=True)
+            if host is not None:
+                conn.putheader("Host", host)
+            for k, v in (extra or {}).items():
+                conn.putheader(k, v)
+            conn.endheaders()
+            return conn.getresponse().status
+        finally:
+            conn.close()
+
+    def test_wildcard_bind_allows_only_listed_hosts(self):
+        port = self.start("0.0.0.0", ["100.64.0.1", "box.tail.ts.net"])
+        for host in (f"127.0.0.1:{port}", f"localhost:{port}", "100.64.0.1", f"100.64.0.1:{port}", "BOX.tail.ts.net",
+                     f"Box.Tail.ts.net:{port}", "box.tail.ts.net:443"):
+            self.assertEqual(self.status(port, host), 200, host)
+        for host in ("evil.example", f"evil.example:{port}", "0.0.0.0", f"0.0.0.0:{port}", "127.0.0.1", "", None):
+            self.assertEqual(self.status(port, host), 403, host)
+
+    def test_origin_follows_allowed_hosts(self):
+        port = self.start("0.0.0.0", ["box.tail.ts.net"])
+        ok = {"Origin": "http://box.tail.ts.net"}
+        bad = {"Origin": "http://evil.example"}
+        self.assertEqual(self.status(port, "box.tail.ts.net", extra=ok), 200)
+        self.assertEqual(self.status(port, "box.tail.ts.net", extra=bad), 403)
+
+    def test_concrete_bind_ip_is_auto_allowed(self):
+        try:
+            probe = server.bind(0, "127.0.0.2")
+        except OSError:
+            self.skipTest("127.0.0.2 is not bindable here")
+        probe.server_close()
+        port = self.start("127.0.0.2")
+        self.assertEqual(self.status(port, "127.0.0.2"), 200)
+        self.assertEqual(self.status(port, f"127.0.0.2:{port}"), 200)
+        self.assertEqual(self.status(port, "evil.example"), 403)
+
+    def test_bind_extra_hosts(self):
+        with mock.patch.object(server.Server, "server_bind"), mock.patch.object(server.Server, "server_activate"):
+            def extras(host, allowed=()):
+                httpd = server.bind(1, host, allowed)
+                httpd.socket.close()
+                return httpd.extra_hosts
+
+            self.assertEqual(extras("100.64.0.1", ["a.example"]), {"100.64.0.1", "a.example"})
+            self.assertEqual(extras("0.0.0.0", ["a.example"]), {"a.example"})
+            self.assertEqual(extras("0.0.0.0"), set())
+            self.assertEqual(extras("127.0.0.1"), set())
+
+    def test_default_bind_unchanged(self):
+        port = self.start()
+        self.assertEqual(self.status(port, "box.tail.ts.net"), 403)
+        self.assertEqual(self.status(port, "127.0.0.1"), 403)
+        self.assertEqual(self.status(port, f"127.0.0.1:{port}"), 200)
+
+    def test_state_records_host_and_url_stays_local(self):
+        port = self.start("0.0.0.0", ["a.example"])
+        info = core.read_json(server.state_file())
+        self.assertEqual((info["host"], info["allowed_hosts"]), ("0.0.0.0", ["a.example"]))
+        self.assertEqual(info["url"], f"http://127.0.0.1:{port}/")
+        self.assertEqual(server.url_for(info), f"http://127.0.0.1:{port}/")
+        self.assertTrue(server.health(port, host="0.0.0.0"))
+
+
+class HostConfigTest(unittest.TestCase):
+    def test_parse_hosts(self):
+        self.assertEqual(server.parse_hosts(["A.example, b.example:8443", "[::1]:80", "a.example", " "]),
+                         ["a.example", "b.example", "::1"])
+
+    def test_host_precedence_flag_env_default(self):
+        with mock.patch.dict(os.environ, {server.HOST_ENV: "0.0.0.0"}):
+            self.assertEqual(server.resolve_host("10.0.0.1"), "10.0.0.1")
+            self.assertEqual(server.resolve_host(None), "0.0.0.0")
+        with mock.patch.dict(os.environ):
+            os.environ.pop(server.HOST_ENV, None)
+            self.assertEqual(server.resolve_host(None), "127.0.0.1")
+
+    def test_allowed_precedence_flag_env_default(self):
+        with mock.patch.dict(os.environ, {server.ALLOWED_HOSTS_ENV: "env.example,env2.example"}):
+            self.assertEqual(server.resolve_allowed(["flag.example"]), ["flag.example"])
+            self.assertEqual(server.resolve_allowed(None), ["env.example", "env2.example"])
+        with mock.patch.dict(os.environ):
+            os.environ.pop(server.ALLOWED_HOSTS_ENV, None)
+            self.assertEqual(server.resolve_allowed(None), [])
+
+    def test_exposure_warning(self):
+        self.assertIsNone(server.exposure_warning("127.0.0.1"))
+        self.assertIsNone(server.exposure_warning("::1"))
+        self.assertIn("no auth", server.exposure_warning("0.0.0.0"))
+        self.assertIn("100.64.0.1", server.exposure_warning("100.64.0.1"))
+
+    def test_cli_parses_new_flags(self):
+        from costlib import cli
+        args = cli.build_parser().parse_args(["serve", "--host", "0.0.0.0", "--allow-host", "a", "--allow-host", "b,c"])
+        self.assertEqual((args.host, args.allow_host), ("0.0.0.0", ["a", "b,c"]))
+
+
+class RestartOnConfigChangeTest(ServerBase):
+    def test_changed_host_restarts_running_server(self):
+        info = {"pid": 1, "port": 1, "version": core.plugin_version(), "host": "127.0.0.1", "allowed_hosts": []}
+        fresh = {"pid": 2, "port": 1}
+        with mock.patch.object(server, "running", return_value=info), \
+                mock.patch.object(server, "stop_server") as stopped, \
+                mock.patch.object(server, "spawn", return_value=fresh) as spawned:
+            self.assertEqual(server._ensure_running(1, "0.0.0.0", ["a"]), (fresh, "restarted"))
+            stopped.assert_called_once()
+            spawned.assert_called_once_with(1, "0.0.0.0", ["a"])
+            stopped.reset_mock()
+            self.assertEqual(server._ensure_running(1, "127.0.0.1", [])[1], "running")
+            stopped.assert_not_called()
+
+
 class IdleTest(unittest.TestCase):
     def test_idle_tracker_with_fake_clock(self):
         now = [1000.0]

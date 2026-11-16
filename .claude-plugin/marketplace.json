@@ -11,7 +11,7 @@
       "name": "agent-cost",
       "source": "./",
       "description": "Cost and time tracking: hooks that record every session and sub-agent, a status-line segment and an HTML report.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "category": "productivity",
       "keywords": ["cost", "usage", "tokens", "statusline", "report"]
     }
